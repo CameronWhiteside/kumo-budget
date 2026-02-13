@@ -18,9 +18,11 @@ A full-stack Cloudflare Worker with server-side rendering, authentication, and [
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 20.18+ (20.19+ recommended, see `.nvmrc`)
 - Wrangler CLI (`npm i -g wrangler`)
 - Cloudflare account with D1 and R2 access
+
+> **Note**: Use `nvm use` to switch to the correct Node version if you have nvm installed.
 
 ### Setup
 
