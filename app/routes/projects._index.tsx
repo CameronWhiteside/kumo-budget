@@ -57,16 +57,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
  * Role badge component
  */
 function RoleBadge({ role }: { role: ProjectRole }) {
-  // Use neutral colors with different intensities to distinguish roles
-  const colors = {
-    owner: 'bg-neutral-800 text-white',
-    editor: 'bg-neutral-200 text-neutral-700',
-    viewer: 'bg-neutral-100 text-neutral-600',
-  };
-
-  return (
-    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${colors[role]}`}>{role}</span>
-  );
+  return <span className="px-2 py-0.5 rounded-full text-xs font-medium">{role}</span>;
 }
 
 /**
@@ -76,13 +67,13 @@ export default function ProjectsIndex({ loaderData }: Route.ComponentProps) {
   const { projects } = loaderData;
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-white border-b border-neutral-200">
+      <header className="border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              <FolderIcon className="h-6 w-6 text-neutral-500" />
+              <FolderIcon className="h-6 w-6" />
               <Text variant="heading2" as="h1">
                 Projects
               </Text>
@@ -103,7 +94,7 @@ export default function ProjectsIndex({ loaderData }: Route.ComponentProps) {
         {projects.length === 0 ? (
           /* Empty state */
           <Surface className="p-12 rounded-xl text-center">
-            <FolderIcon className="h-16 w-16 mx-auto text-neutral-300 mb-4" />
+            <FolderIcon className="h-16 w-16 mx-auto mb-4" />
             <div className="mb-2">
               <Text variant="heading3" as="h2">
                 No projects yet
@@ -128,7 +119,7 @@ export default function ProjectsIndex({ loaderData }: Route.ComponentProps) {
               <Link key={project.id} to={`/projects/${project.id}`} className="block">
                 <Surface className="p-6 rounded-xl hover:shadow-md transition-shadow h-full">
                   <div className="flex items-start justify-between mb-3">
-                    <FolderIcon className="h-8 w-8 text-neutral-500" />
+                    <FolderIcon className="h-8 w-8" />
                     <RoleBadge role={role} />
                   </div>
 
@@ -140,7 +131,7 @@ export default function ProjectsIndex({ loaderData }: Route.ComponentProps) {
 
                   <div className="flex items-center gap-4 mt-4">
                     {childCount > 0 && (
-                      <div className="flex items-center gap-1 text-neutral-500">
+                      <div className="flex items-center gap-1">
                         <TreeStructureIcon className="h-4 w-4" />
                         <Text variant="secondary" size="sm">
                           {childCount} sub-project{childCount !== 1 ? 's' : ''}
@@ -149,7 +140,7 @@ export default function ProjectsIndex({ loaderData }: Route.ComponentProps) {
                     )}
                   </div>
 
-                  <div className="mt-4 pt-4 border-t border-neutral-200">
+                  <div className="mt-4 pt-4 border-t">
                     <Text variant="secondary" size="xs">
                       Created {new Date(project.createdAt).toLocaleDateString()}
                     </Text>

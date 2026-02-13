@@ -1,6 +1,5 @@
 import { Form, Link, redirect, useActionData, useNavigation } from 'react-router';
-import { Button, Input, Surface, Text } from '@cloudflare/kumo';
-import { CloudflareLogo } from '@cloudflare/kumo/components/cloudflare-logo';
+import { Button, Input, Label, Surface, Text } from '@cloudflare/kumo';
 import {
   ArrowLeftIcon,
   TrashIcon,
@@ -203,9 +202,9 @@ function MemberRow({
   const isCurrentUser = member.userId === currentUserId;
 
   return (
-    <div className="flex items-center justify-between py-3 border-b border-neutral-200 last:border-b-0">
+    <div className="flex items-center justify-between py-3 border-b last:border-b-0">
       <div className="flex items-center gap-3">
-        <UserIcon className="h-5 w-5 text-neutral-500" />
+        <UserIcon className="h-5 w-5" />
         <div>
           <Text bold>{member.user.username}</Text>
           {isCurrentUser && (
@@ -227,7 +226,7 @@ function MemberRow({
             defaultValue={member.role}
             onChange={(e) => e.target.form?.requestSubmit()}
             disabled={isSubmitting}
-            className="px-3 py-1.5 text-sm border border-neutral-300 rounded-md bg-white text-neutral-900"
+            className="px-3 py-1.5 text-sm border rounded-md"
             aria-label={`Role for ${member.user.username}`}
           >
             {PROJECT_ROLES.map((role) => (
@@ -271,13 +270,12 @@ export default function ProjectSettings({ loaderData }: Route.ComponentProps) {
   const isSubmitting = navigation.state === 'submitting';
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-white border-b border-neutral-200">
+      <header className="border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-3">
-              <CloudflareLogo className="h-8 w-auto" />
+            <Link to="/">
               <Text variant="heading3" as="span">
                 Kumo Budget
               </Text>
@@ -285,7 +283,7 @@ export default function ProjectSettings({ loaderData }: Route.ComponentProps) {
 
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <UserIcon className="h-5 w-5 text-neutral-500" />
+                <UserIcon className="h-5 w-5" />
                 <Text variant="secondary" size="sm">
                   {user.username}
                 </Text>
@@ -305,10 +303,7 @@ export default function ProjectSettings({ loaderData }: Route.ComponentProps) {
       {/* Main content */}
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back link */}
-        <Link
-          to={`/projects/${project.id}`}
-          className="inline-flex items-center gap-2 text-neutral-500 hover:text-neutral-700 mb-6"
-        >
+        <Link to={`/projects/${project.id}`} className="inline-flex items-center gap-2 mb-6">
           <ArrowLeftIcon className="h-4 w-4" />
           <Text size="sm">Back to project</Text>
         </Link>
@@ -327,7 +322,7 @@ export default function ProjectSettings({ loaderData }: Route.ComponentProps) {
 
         {/* Success/Error messages */}
         {actionData && (
-          <div className="p-4 rounded-lg mb-6 bg-neutral-100 border border-neutral-300">
+          <div className="p-4 rounded-lg mb-6 border">
             <Text variant={actionData.success ? 'secondary' : 'error'} size="sm">
               {actionData.success ? actionData.message : actionData.error}
             </Text>
@@ -355,7 +350,7 @@ export default function ProjectSettings({ loaderData }: Route.ComponentProps) {
           </div>
 
           {/* Add member form */}
-          <div className="pt-4 border-t border-neutral-200">
+          <div className="pt-4 border-t">
             <div className="mb-4">
               <Text variant="heading3" as="h3">
                 Add Member
@@ -365,17 +360,12 @@ export default function ProjectSettings({ loaderData }: Route.ComponentProps) {
               <input type="hidden" name="intent" value="addMember" />
 
               <div className="flex-1">
-                <label htmlFor="username" className="block mb-2">
-                  <Text size="sm" bold>
-                    Username
-                  </Text>
-                </label>
+                <Label htmlFor="username">Username</Label>
                 <Input
                   id="username"
                   name="username"
                   type="text"
                   placeholder="Enter username"
-                  aria-label="Username to add"
                   required
                   disabled={isSubmitting}
                   className="w-full"
@@ -383,18 +373,13 @@ export default function ProjectSettings({ loaderData }: Route.ComponentProps) {
               </div>
 
               <div className="w-32">
-                <label htmlFor="role" className="block mb-2">
-                  <Text size="sm" bold>
-                    Role
-                  </Text>
-                </label>
+                <Label htmlFor="role">Role</Label>
                 <select
                   id="role"
                   name="role"
                   defaultValue="viewer"
                   disabled={isSubmitting}
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-md bg-white text-neutral-900"
-                  aria-label="Role for new member"
+                  className="w-full px-3 py-2 border rounded-md"
                 >
                   {PROJECT_ROLES.map((role) => (
                     <option key={role} value={role}>
@@ -413,9 +398,9 @@ export default function ProjectSettings({ loaderData }: Route.ComponentProps) {
         </Surface>
 
         {/* Danger zone */}
-        <Surface className="p-6 rounded-xl border-2 border-neutral-400">
+        <Surface className="p-6 rounded-xl border-2">
           <div className="flex items-center gap-2 mb-4">
-            <WarningIcon className="h-5 w-5 text-neutral-600" />
+            <WarningIcon className="h-5 w-5" />
             <Text variant="heading2" as="h2">
               Danger Zone
             </Text>

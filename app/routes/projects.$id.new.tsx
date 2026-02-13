@@ -1,6 +1,6 @@
 import { Form, Link, redirect, useActionData, useNavigation } from 'react-router';
-import { Button, Input, Surface, Text } from '@cloudflare/kumo';
-import { FolderPlusIcon, ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr';
+import { Button, Input, Label, Surface, Text } from '@cloudflare/kumo';
+import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr';
 
 import type { Route } from './+types/projects.$id.new';
 import { requireAuth } from '~/lib/auth';
@@ -100,23 +100,17 @@ export default function NewSubProject({ loaderData }: Route.ComponentProps) {
   const isSubmitting = navigation.state === 'submitting';
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-white border-b border-neutral-200">
+      <header className="border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 h-16">
-            <Link
-              to={`/projects/${parentProject.id}`}
-              className="text-neutral-500 hover:text-neutral-700 transition-colors"
-            >
+            <Link to={`/projects/${parentProject.id}`} className="transition-colors">
               <ArrowLeftIcon className="h-5 w-5" />
             </Link>
-            <div className="flex items-center gap-3">
-              <FolderPlusIcon className="h-6 w-6 text-neutral-500" />
-              <Text variant="heading2" as="h1">
-                New Sub-project
-              </Text>
-            </div>
+            <Text variant="heading2" as="h1">
+              New Sub-project
+            </Text>
           </div>
         </div>
       </header>
@@ -133,10 +127,10 @@ export default function NewSubProject({ loaderData }: Route.ComponentProps) {
             </Text>
           </div>
 
-          <Form method="post" className="space-y-6">
+          <Form method="post" className="space-y-4">
             {/* General error message */}
             {actionData?.error && !actionData.fieldErrors?.name && (
-              <div className="p-3 rounded-lg bg-neutral-100 border border-neutral-300">
+              <div className="p-3 rounded-lg">
                 <Text variant="error" size="sm">
                   {actionData.error}
                 </Text>
@@ -145,18 +139,12 @@ export default function NewSubProject({ loaderData }: Route.ComponentProps) {
 
             {/* Project name input */}
             <div>
-              <label htmlFor="name" className="block mb-2">
-                <Text size="sm" bold>
-                  Sub-project name
-                </Text>
-                <span className="ml-1 text-neutral-500 text-xs">(required)</span>
-              </label>
+              <Label htmlFor="name">Sub-project name</Label>
               <Input
                 id="name"
                 name="name"
                 type="text"
                 placeholder="e.g., Q1 Budget, Marketing Expenses"
-                aria-label="Sub-project name"
                 aria-describedby={actionData?.fieldErrors?.name ? 'name-error' : undefined}
                 aria-invalid={actionData?.fieldErrors?.name ? 'true' : undefined}
                 required
@@ -175,7 +163,6 @@ export default function NewSubProject({ loaderData }: Route.ComponentProps) {
             {/* Form actions */}
             <div className="flex items-center gap-3 pt-4">
               <Button type="submit" variant="primary" disabled={isSubmitting}>
-                <FolderPlusIcon className="h-4 w-4 mr-2" />
                 {isSubmitting ? 'Creating...' : 'Create Sub-project'}
               </Button>
               <Link to={`/projects/${parentProject.id}`}>

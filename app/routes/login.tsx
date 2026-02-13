@@ -1,6 +1,5 @@
 import { Form, redirect, useActionData, useNavigation } from 'react-router';
-import { Button, Input, Surface, Text } from '@cloudflare/kumo';
-import { CloudflareLogo } from '@cloudflare/kumo/components/cloudflare-logo';
+import { Button, Input, Label, Surface, Text } from '@cloudflare/kumo';
 
 import type { Route } from './+types/login';
 import { createDb } from '~/lib/db';
@@ -83,74 +82,61 @@ export default function LoginPage() {
   const isSubmitting = navigation.state === 'submitting';
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-50 p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <Surface className="w-full max-w-md p-8 rounded-xl shadow-lg">
-        <div className="flex flex-col items-center mb-8">
-          <CloudflareLogo className="h-10 w-auto mb-4" />
-          <div className="text-center">
-            <Text variant="heading2" as="h1">
-              Welcome to Kumo Budget
-            </Text>
-          </div>
-          <div className="mt-2 text-center">
+        <div className="mb-8 text-center">
+          <Text variant="heading2" as="h1">
+            Kumo Budget
+          </Text>
+          <div className="mt-2">
             <Text variant="secondary" as="p" size="sm">
-              Sign in to your account to continue
+              Sign in to your account
             </Text>
           </div>
         </div>
 
-        <Form method="post" className="space-y-6">
+        <Form method="post" className="space-y-4">
           {actionData?.error && (
-            <div className="p-3 rounded-lg bg-neutral-100 border border-neutral-300">
+            <div className="p-3 rounded-lg">
               <Text variant="error" size="sm">
                 {actionData.error}
               </Text>
             </div>
           )}
 
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="username" className="block mb-2">
-                <Text size="sm" bold>
-                  Username
-                </Text>
-              </label>
-              <Input
-                id="username"
-                name="username"
-                type="text"
-                placeholder="Enter your username"
-                aria-label="Username"
-                autoComplete="username"
-                required
-                disabled={isSubmitting}
-                className="w-full"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block mb-2">
-                <Text size="sm" bold>
-                  Password
-                </Text>
-              </label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="Enter your password"
-                aria-label="Password"
-                autoComplete="current-password"
-                required
-                disabled={isSubmitting}
-                className="w-full"
-              />
-            </div>
+          <div>
+            <Label htmlFor="username">Username</Label>
+            <Input
+              id="username"
+              name="username"
+              type="text"
+              placeholder="Enter your username"
+              autoComplete="username"
+              required
+              disabled={isSubmitting}
+              className="w-full"
+            />
           </div>
 
-          <Button type="submit" variant="primary" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? 'Signing in...' : 'Sign in'}
-          </Button>
+          <div>
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Enter your password"
+              autoComplete="current-password"
+              required
+              disabled={isSubmitting}
+              className="w-full"
+            />
+          </div>
+
+          <div className="pt-2">
+            <Button type="submit" variant="primary" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? 'Signing in...' : 'Sign in'}
+            </Button>
+          </div>
         </Form>
 
         <div className="mt-6 text-center">

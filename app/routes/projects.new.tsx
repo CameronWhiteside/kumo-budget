@@ -1,6 +1,6 @@
 import { Form, Link, redirect, useActionData, useNavigation, useSearchParams } from 'react-router';
-import { Button, Input, Surface, Text } from '@cloudflare/kumo';
-import { FolderPlusIcon, ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr';
+import { Button, Input, Label, Surface, Text } from '@cloudflare/kumo';
+import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr';
 
 import type { Route } from './+types/projects.new';
 import { requireAuth } from '~/lib/auth';
@@ -105,23 +105,17 @@ export default function NewProject({ loaderData }: Route.ComponentProps) {
   const defaultParentId = parentId ?? (parentParam ? parseInt(parentParam, 10) : '');
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-white border-b border-neutral-200">
+      <header className="border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 h-16">
-            <Link
-              to="/projects"
-              className="text-neutral-500 hover:text-neutral-700 transition-colors"
-            >
+            <Link to="/projects" className="transition-colors">
               <ArrowLeftIcon className="h-5 w-5" />
             </Link>
-            <div className="flex items-center gap-3">
-              <FolderPlusIcon className="h-6 w-6 text-neutral-500" />
-              <Text variant="heading2" as="h1">
-                New Project
-              </Text>
-            </div>
+            <Text variant="heading2" as="h1">
+              New Project
+            </Text>
           </div>
         </div>
       </header>
@@ -129,10 +123,10 @@ export default function NewProject({ loaderData }: Route.ComponentProps) {
       {/* Main content */}
       <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Surface className="p-8 rounded-xl">
-          <Form method="post" className="space-y-6">
+          <Form method="post" className="space-y-4">
             {/* General error message */}
             {actionData?.error && !actionData.fieldErrors?.name && (
-              <div className="p-3 rounded-lg bg-neutral-100 border border-neutral-300">
+              <div className="p-3 rounded-lg border">
                 <Text variant="error" size="sm">
                   {actionData.error}
                 </Text>
@@ -141,22 +135,12 @@ export default function NewProject({ loaderData }: Route.ComponentProps) {
 
             {/* Project name input */}
             <div>
-              <label htmlFor="name" className="block mb-2">
-                <span className="flex items-center gap-1">
-                  <Text size="sm" bold>
-                    Project name
-                  </Text>
-                  <Text variant="secondary" size="xs">
-                    (required)
-                  </Text>
-                </span>
-              </label>
+              <Label htmlFor="name">Project name</Label>
               <Input
                 id="name"
                 name="name"
                 type="text"
                 placeholder="e.g., Home Budget, Vacation Fund"
-                aria-label="Project name"
                 aria-describedby={actionData?.fieldErrors?.name ? 'name-error' : undefined}
                 aria-invalid={actionData?.fieldErrors?.name ? 'true' : undefined}
                 required
@@ -175,22 +159,15 @@ export default function NewProject({ loaderData }: Route.ComponentProps) {
             {/* Parent project dropdown (optional) */}
             {projects.length > 0 && (
               <div>
-                <label htmlFor="parentId" className="block mb-2">
-                  <span className="flex items-center gap-1">
-                    <Text size="sm" bold>
-                      Parent project
-                    </Text>
-                    <Text variant="secondary" size="xs">
-                      (optional)
-                    </Text>
-                  </span>
-                </label>
+                <Label htmlFor="parentId" showOptional>
+                  Parent project
+                </Label>
                 <select
                   id="parentId"
                   name="parentId"
                   disabled={isSubmitting}
                   defaultValue={defaultParentId}
-                  className="w-full px-3 py-2 rounded-lg border border-neutral-300 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-3 py-2 rounded-lg border disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">None (top-level project)</option>
                   {projects.map((project: Project) => (
@@ -210,7 +187,6 @@ export default function NewProject({ loaderData }: Route.ComponentProps) {
             {/* Form actions */}
             <div className="flex items-center gap-3 pt-4">
               <Button type="submit" variant="primary" disabled={isSubmitting}>
-                <FolderPlusIcon className="h-4 w-4 mr-2" />
                 {isSubmitting ? 'Creating...' : 'Create Project'}
               </Button>
               <Link to="/projects">

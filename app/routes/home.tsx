@@ -1,8 +1,6 @@
 import { Form, Link } from 'react-router';
 import { Button, Surface, Text } from '@cloudflare/kumo';
-import { FolderIcon } from '@phosphor-icons/react/dist/ssr';
-import { CloudflareLogo } from '@cloudflare/kumo/components/cloudflare-logo';
-import { SignOutIcon, UserIcon } from '@phosphor-icons/react/dist/ssr';
+import { FolderIcon, SignOutIcon, UserIcon } from '@phosphor-icons/react/dist/ssr';
 
 import type { Route } from './+types/home';
 import { requireAuth } from '~/lib/auth';
@@ -32,21 +30,18 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const { user } = loaderData;
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-white border-b border-neutral-200">
+      <header className="border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <CloudflareLogo className="h-8 w-auto" />
-              <Text variant="heading3" as="span">
-                Kumo Budget
-              </Text>
-            </div>
+            <Text variant="heading3" as="span">
+              Kumo Budget
+            </Text>
 
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <UserIcon className="h-5 w-5 text-neutral-500" />
+                <UserIcon className="h-5 w-5" />
                 <Text variant="secondary" size="sm">
                   {user.username}
                 </Text>
@@ -74,7 +69,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             </div>
             <div className="mb-8">
               <Text variant="secondary" as="p">
-                You are now signed in to Kumo Budget. This is your protected home page.
+                You are now signed in to Kumo Budget.
               </Text>
             </div>
 
@@ -87,7 +82,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
               <Link to="/projects" className="block">
-                <Surface className="p-6 rounded-lg bg-neutral-50 hover:bg-neutral-100 transition-colors">
+                <Surface className="p-6 rounded-lg transition-colors">
                   <div className="mb-2">
                     <Text variant="heading3" as="h3">
                       Dashboard
@@ -99,7 +94,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 </Surface>
               </Link>
 
-              <Surface className="p-6 rounded-lg bg-neutral-50">
+              <Surface className="p-6 rounded-lg">
                 <div className="mb-2">
                   <Text variant="heading3" as="h3">
                     Transactions
@@ -110,7 +105,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 </Text>
               </Surface>
 
-              <Surface className="p-6 rounded-lg bg-neutral-50">
+              <Surface className="p-6 rounded-lg">
                 <div className="mb-2">
                   <Text variant="heading3" as="h3">
                     Reports
@@ -123,12 +118,6 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
         </Surface>
-
-        <div className="mt-8 text-center">
-          <Text variant="secondary" size="xs">
-            Built with React Router v7, Cloudflare Workers, D1, and Kumo UI
-          </Text>
-        </div>
       </main>
     </div>
   );

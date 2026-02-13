@@ -1,6 +1,5 @@
 import { Link, Form } from 'react-router';
 import { Button, Surface, Text } from '@cloudflare/kumo';
-import { CloudflareLogo } from '@cloudflare/kumo/components/cloudflare-logo';
 import {
   GearIcon,
   PlusIcon,
@@ -74,20 +73,18 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
 function Breadcrumbs({ ancestors, current }: { ancestors: Project[]; current: Project }) {
   return (
     <nav className="flex items-center gap-2 text-sm" aria-label="Breadcrumb">
-      <Link to="/" className="text-neutral-500 hover:text-neutral-700">
+      <Link to="/">
         <HouseIcon className="h-4 w-4" />
       </Link>
 
       {ancestors.map((ancestor) => (
         <div key={ancestor.id} className="flex items-center gap-2">
-          <CaretRightIcon className="h-3 w-3 text-neutral-400" />
-          <Link to={`/projects/${ancestor.id}`} className="text-neutral-500 hover:text-neutral-700">
-            {ancestor.name}
-          </Link>
+          <CaretRightIcon className="h-3 w-3" />
+          <Link to={`/projects/${ancestor.id}`}>{ancestor.name}</Link>
         </div>
       ))}
 
-      <CaretRightIcon className="h-3 w-3 text-neutral-400" />
+      <CaretRightIcon className="h-3 w-3" />
       <Text variant="secondary" size="sm" bold>
         {current.name}
       </Text>
@@ -101,9 +98,9 @@ function Breadcrumbs({ ancestors, current }: { ancestors: Project[]; current: Pr
 function SubProjectCard({ project }: { project: Project }) {
   return (
     <Link to={`/projects/${project.id}`}>
-      <Surface className="p-6 rounded-lg hover:bg-neutral-100 transition-colors">
+      <Surface className="p-6 rounded-lg transition-colors">
         <div className="flex items-start gap-3">
-          <FolderIcon className="h-6 w-6 text-neutral-500 flex-shrink-0" />
+          <FolderIcon className="h-6 w-6 flex-shrink-0" />
           <div>
             <div className="mb-1">
               <Text variant="heading3" as="h3">
@@ -130,13 +127,12 @@ export default function ProjectDetail({ loaderData }: Route.ComponentProps) {
   const subProjectCount = children.length;
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-white border-b border-neutral-200">
+      <header className="border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-3">
-              <CloudflareLogo className="h-8 w-auto" />
+            <Link to="/">
               <Text variant="heading3" as="span">
                 Kumo Budget
               </Text>
@@ -144,7 +140,7 @@ export default function ProjectDetail({ loaderData }: Route.ComponentProps) {
 
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <UserIcon className="h-5 w-5 text-neutral-500" />
+                <UserIcon className="h-5 w-5" />
                 <Text variant="secondary" size="sm">
                   {user.username}
                 </Text>
@@ -178,13 +174,13 @@ export default function ProjectDetail({ loaderData }: Route.ComponentProps) {
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1">
-                <UsersIcon className="h-4 w-4 text-neutral-500" />
+                <UsersIcon className="h-4 w-4" />
                 <Text variant="secondary" size="sm">
                   {memberCount} {memberCount === 1 ? 'member' : 'members'}
                 </Text>
               </div>
               <div className="flex items-center gap-1">
-                <FolderIcon className="h-4 w-4 text-neutral-500" />
+                <FolderIcon className="h-4 w-4" />
                 <Text variant="secondary" size="sm">
                   {subProjectCount} {subProjectCount === 1 ? 'sub-project' : 'sub-projects'}
                 </Text>
@@ -229,7 +225,7 @@ export default function ProjectDetail({ loaderData }: Route.ComponentProps) {
             </div>
           ) : (
             <div className="text-center py-12">
-              <FolderIcon className="h-12 w-12 text-neutral-300 mx-auto mb-4" />
+              <FolderIcon className="h-12 w-12 mx-auto mb-4" />
               <div className="mb-4">
                 <Text variant="secondary" as="p">
                   No sub-projects yet
@@ -264,11 +260,8 @@ export default function ProjectDetail({ loaderData }: Route.ComponentProps) {
 
           <div className="flex flex-wrap gap-3">
             {project.members.map((member) => (
-              <div
-                key={member.userId}
-                className="flex items-center gap-2 px-3 py-2 bg-neutral-100 rounded-full"
-              >
-                <UserIcon className="h-4 w-4 text-neutral-500" />
+              <div key={member.userId} className="flex items-center gap-2 px-3 py-2 rounded-full">
+                <UserIcon className="h-4 w-4" />
                 <Text size="sm">{member.user.username}</Text>
                 <Text variant="secondary" size="sm">
                   ({member.role})
