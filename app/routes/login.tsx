@@ -87,14 +87,10 @@ export default function LoginPage() {
       <Surface className="w-full max-w-md p-8 rounded-xl shadow-lg">
         <div className="flex flex-col items-center mb-8">
           <CloudflareLogo className="h-10 w-auto mb-4" />
-          <Text as="h1" size="xl" weight="semibold" className="text-center">
+          <Text variant="heading2" as="h1" className="text-center">
             Welcome to Kumo Budget
           </Text>
-          <Text
-            as="p"
-            size="sm"
-            className="text-neutral-500 dark:text-neutral-400 mt-2 text-center"
-          >
+          <Text variant="secondary" as="p" size="sm" className="mt-2 text-center">
             Sign in to your account to continue
           </Text>
         </div>
@@ -102,7 +98,7 @@ export default function LoginPage() {
         <Form method="post" className="space-y-6">
           {actionData?.error && (
             <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-              <Text size="sm" className="text-red-600 dark:text-red-400">
+              <Text variant="error" size="sm">
                 {actionData.error}
               </Text>
             </div>
@@ -111,7 +107,7 @@ export default function LoginPage() {
           <div className="space-y-4">
             <div>
               <label htmlFor="username" className="block mb-2">
-                <Text size="sm" weight="medium">
+                <Text size="sm" bold>
                   Username
                 </Text>
               </label>
@@ -120,6 +116,7 @@ export default function LoginPage() {
                 name="username"
                 type="text"
                 placeholder="Enter your username"
+                aria-label="Username"
                 autoComplete="username"
                 required
                 disabled={isSubmitting}
@@ -129,7 +126,7 @@ export default function LoginPage() {
 
             <div>
               <label htmlFor="password" className="block mb-2">
-                <Text size="sm" weight="medium">
+                <Text size="sm" bold>
                   Password
                 </Text>
               </label>
@@ -138,6 +135,7 @@ export default function LoginPage() {
                 name="password"
                 type="password"
                 placeholder="Enter your password"
+                aria-label="Password"
                 autoComplete="current-password"
                 required
                 disabled={isSubmitting}
@@ -152,7 +150,7 @@ export default function LoginPage() {
         </Form>
 
         <div className="mt-6 text-center">
-          <Text size="xs" className="text-neutral-400 dark:text-neutral-500">
+          <Text variant="secondary" size="xs">
             Default credentials: admin / admin
           </Text>
         </div>

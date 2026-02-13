@@ -38,7 +38,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
               <CloudflareLogo className="h-8 w-auto" />
-              <Text as="span" size="lg" weight="semibold">
+              <Text variant="heading3" as="span">
                 Kumo Budget
               </Text>
             </div>
@@ -46,7 +46,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <UserIcon className="h-5 w-5 text-neutral-500" />
-                <Text size="sm" className="text-neutral-600 dark:text-neutral-400">
+                <Text variant="secondary" size="sm">
                   {user.username}
                 </Text>
               </div>
@@ -66,37 +66,37 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Surface className="p-8 rounded-xl">
           <div className="text-center">
-            <Text as="h1" size="2xl" weight="bold" className="mb-4">
+            <Text variant="heading1" as="h1" className="mb-4">
               Welcome back, {user.username}!
             </Text>
-            <Text as="p" size="md" className="text-neutral-500 dark:text-neutral-400 mb-8">
+            <Text variant="secondary" as="p" className="mb-8">
               You are now signed in to Kumo Budget. This is your protected home page.
             </Text>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
               <Surface className="p-6 rounded-lg bg-neutral-50 dark:bg-neutral-800">
-                <Text as="h3" size="lg" weight="semibold" className="mb-2">
+                <Text variant="heading3" as="h3" className="mb-2">
                   Dashboard
                 </Text>
-                <Text size="sm" className="text-neutral-500 dark:text-neutral-400">
+                <Text variant="secondary" size="sm">
                   View your financial overview and recent activity.
                 </Text>
               </Surface>
 
               <Surface className="p-6 rounded-lg bg-neutral-50 dark:bg-neutral-800">
-                <Text as="h3" size="lg" weight="semibold" className="mb-2">
+                <Text variant="heading3" as="h3" className="mb-2">
                   Transactions
                 </Text>
-                <Text size="sm" className="text-neutral-500 dark:text-neutral-400">
+                <Text variant="secondary" size="sm">
                   Track your income and expenses with ease.
                 </Text>
               </Surface>
 
               <Surface className="p-6 rounded-lg bg-neutral-50 dark:bg-neutral-800">
-                <Text as="h3" size="lg" weight="semibold" className="mb-2">
+                <Text variant="heading3" as="h3" className="mb-2">
                   Reports
                 </Text>
-                <Text size="sm" className="text-neutral-500 dark:text-neutral-400">
+                <Text variant="secondary" size="sm">
                   Generate insights from your spending habits.
                 </Text>
               </Surface>
@@ -105,7 +105,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         </Surface>
 
         <div className="mt-8 text-center">
-          <Text size="xs" className="text-neutral-400 dark:text-neutral-500">
+          <Text variant="secondary" size="xs">
             Built with React Router v7, Cloudflare Workers, D1, and Kumo UI
           </Text>
         </div>

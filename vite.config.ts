@@ -11,4 +11,19 @@ export default defineConfig({
     reactRouter(),
     tsconfigPaths(),
   ],
+  ssr: {
+    // Bundle these packages for SSR instead of externalizing
+    noExternal: ['@cloudflare/kumo', '@base-ui/react', '@phosphor-icons/react'],
+    // Resolve conditions for SSR - prefer browser builds that work in both environments
+    resolve: {
+      conditions: ['browser', 'module', 'import', 'default'],
+    },
+  },
+  optimizeDeps: {
+    include: ['@cloudflare/kumo', '@base-ui/react'],
+  },
+  resolve: {
+    // Ensure consistent module resolution
+    dedupe: ['react', 'react-dom', '@cloudflare/kumo'],
+  },
 });
