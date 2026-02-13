@@ -13,18 +13,23 @@
     'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
+/* Base styles - light mode by default */
 html,
 body {
-  @apply bg-white dark:bg-neutral-950;
+  @apply bg-white text-neutral-900;
+  min-height: 100vh;
+}
 
-  @media (prefers-color-scheme: dark) {
+/* Dark mode only when user explicitly prefers it */
+@media (prefers-color-scheme: dark) {
+  html,
+  body {
+    @apply bg-neutral-950 text-neutral-100;
     color-scheme: dark;
   }
 }
 
-/* Ensure full height for auth pages */
-#root,
-html,
-body {
+/* Ensure full height */
+#root {
   min-height: 100vh;
 }

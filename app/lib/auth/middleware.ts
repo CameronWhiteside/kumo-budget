@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/only-throw-error */
-// React Router uses throw redirect() pattern which throws Response objects
 import { redirect } from 'react-router';
 import { createDb } from '../db';
 import { getSessionIdFromCookie, validateSession } from './session';

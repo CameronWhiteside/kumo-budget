@@ -83,21 +83,25 @@ export default function LoginPage() {
   const isSubmitting = navigation.state === 'submitting';
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-neutral-50 p-4">
       <Surface className="w-full max-w-md p-8 rounded-xl shadow-lg">
         <div className="flex flex-col items-center mb-8">
           <CloudflareLogo className="h-10 w-auto mb-4" />
-          <Text variant="heading2" as="h1" className="text-center">
-            Welcome to Kumo Budget
-          </Text>
-          <Text variant="secondary" as="p" size="sm" className="mt-2 text-center">
-            Sign in to your account to continue
-          </Text>
+          <div className="text-center">
+            <Text variant="heading2" as="h1">
+              Welcome to Kumo Budget
+            </Text>
+          </div>
+          <div className="mt-2 text-center">
+            <Text variant="secondary" as="p" size="sm">
+              Sign in to your account to continue
+            </Text>
+          </div>
         </div>
 
         <Form method="post" className="space-y-6">
           {actionData?.error && (
-            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200">
               <Text variant="error" size="sm">
                 {actionData.error}
               </Text>

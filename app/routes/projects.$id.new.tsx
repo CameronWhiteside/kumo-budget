@@ -1,0 +1,192 @@
+import { Form, Link, redirect, useActionData, useNavigation } from 'react-router';
+import { Button, Input, Surface, Text } from '@cloudflare/kumo';
+import { FolderPlusIcon, ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr';
+
+import type { Route } from './+types/projects.$id.new';
+import { requireAuth } from '~/lib/auth';
+import { requireProjectAccess, canEdit } from '~/lib/auth/project-access';
+import { createDb } from '~/lib/db';
+import { projectQueries } from '~/lib/db/queries';
+
+/**
+ * New sub-project page meta information
+ */
+export function meta({ loaderData }: Route.MetaArgs): Route.MetaDescriptors {
+  const parentName = loaderData?.parentProject?.name ?? 'Project';
+  return [
+    { title: `New Sub-project - ${parentName} - Kumo Budget` },
+    { name: 'description', content: `Create a new sub-project under ${parentName}` },
+  ];
+}
+
+/**
+ * Loader - requires authentication and editor access to parent project
+ */
+export async function loader({ request, context, params }: Route.LoaderArgs) {
+  const { user } = await requireAuth(request, context.cloudflare.env);
+  const db = createDb(context.cloudflare.env.DB);
+
+  const parentId = Number(params.id);
+  if (isNaN(parentId)) {
+    throw new Response('Invalid project ID', { status: 400 });
+  }
+
+  // Require at least editor access to create sub-projects
+  const { role } = await requireProjectAccess(db, user.id, parentId, 'editor');
+
+  // Fetch parent project
+  const parentProject = await projectQueries.findById(db, parentId);
+  if (!parentProject) {
+    throw new Response('Project not found', { status: 404 });
+  }
+
+  return {
+    parentProject,
+    user: { id: user.id, username: user.username },
+    canEdit: canEdit(role),
+  };
+}
+
+/**
+ * Action - handles sub-project creation
+ */
+export async function action({ request, context, params }: Route.ActionArgs) {
+  const { user } = await requireAuth(request, context.cloudflare.env);
+  const db = createDb(context.cloudflare.env.DB);
+
+  const parentId = Number(params.id);
+  if (isNaN(parentId)) {
+    throw new Response('Invalid project ID', { status: 400 });
+  }
+
+  // Verify editor access to parent
+  await requireProjectAccess(db, user.id, parentId, 'editor');
+
+  const formData = await request.formData();
+  const name = formData.get('name');
+
+  // Validate name
+  if (typeof name !== 'string' || !name.trim()) {
+    return { error: 'Project name is required', fieldErrors: { name: 'Project name is required' } };
+  }
+
+  const trimmedName = name.trim();
+
+  if (trimmedName.length > 100) {
+    return {
+      error: 'Project name must be 100 characters or less',
+      fieldErrors: { name: 'Project name must be 100 characters or less' },
+    };
+  }
+
+  // Create the sub-project
+  const project = await projectQueries.create(db, {
+    name: trimmedName,
+    parentId,
+    ownerId: user.id,
+  });
+
+  // Redirect to the new project
+  return redirect(`/projects/${project.id}`);
+}
+
+/**
+ * New sub-project page component
+ */
+export default function NewSubProject({ loaderData }: Route.ComponentProps) {
+  const { parentProject } = loaderData;
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === 'submitting';
+
+  return (
+    <div className="min-h-screen bg-neutral-50">
+      {/* Header */}
+      <header className="bg-white border-b border-neutral-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-4 h-16">
+            <Link
+              to={`/projects/${parentProject.id}`}
+              className="text-neutral-500 hover:text-neutral-700 transition-colors"
+            >
+              <ArrowLeftIcon className="h-5 w-5" />
+            </Link>
+            <div className="flex items-center gap-3">
+              <FolderPlusIcon className="h-6 w-6 text-neutral-500" />
+              <Text variant="heading2" as="h1">
+                New Sub-project
+              </Text>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main content */}
+      <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Surface className="p-8 rounded-xl">
+          <div className="mb-6">
+            <Text variant="secondary" size="sm">
+              Creating sub-project under
+            </Text>
+            <Text variant="heading3" as="p">
+              {parentProject.name}
+            </Text>
+          </div>
+
+          <Form method="post" className="space-y-6">
+            {/* General error message */}
+            {actionData?.error && !actionData.fieldErrors?.name && (
+              <div className="p-3 rounded-lg bg-red-50 border border-red-200">
+                <Text variant="error" size="sm">
+                  {actionData.error}
+                </Text>
+              </div>
+            )}
+
+            {/* Project name input */}
+            <div>
+              <label htmlFor="name" className="block mb-2">
+                <Text size="sm" bold>
+                  Sub-project name
+                </Text>
+                <span className="ml-1 text-neutral-500 text-xs">(required)</span>
+              </label>
+              <Input
+                id="name"
+                name="name"
+                type="text"
+                placeholder="e.g., Q1 Budget, Marketing Expenses"
+                aria-label="Sub-project name"
+                aria-describedby={actionData?.fieldErrors?.name ? 'name-error' : undefined}
+                aria-invalid={actionData?.fieldErrors?.name ? 'true' : undefined}
+                required
+                disabled={isSubmitting}
+                className="w-full"
+              />
+              {actionData?.fieldErrors?.name && (
+                <div id="name-error" className="mt-1">
+                  <Text variant="error" size="xs">
+                    {actionData.fieldErrors.name}
+                  </Text>
+                </div>
+              )}
+            </div>
+
+            {/* Form actions */}
+            <div className="flex items-center gap-3 pt-4">
+              <Button type="submit" variant="primary" disabled={isSubmitting}>
+                <FolderPlusIcon className="h-4 w-4 mr-2" />
+                {isSubmitting ? 'Creating...' : 'Create Sub-project'}
+              </Button>
+              <Link to={`/projects/${parentProject.id}`}>
+                <Button type="button" variant="secondary" disabled={isSubmitting}>
+                  Cancel
+                </Button>
+              </Link>
+            </div>
+          </Form>
+        </Surface>
+      </main>
+    </div>
+  );
+}

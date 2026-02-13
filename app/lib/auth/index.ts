@@ -19,3 +19,11 @@ export {
   redirectIfAuthenticated,
   type AuthContext,
 } from './middleware';
+export {
+  requireProjectAccess,
+  getProjectRole,
+  hasMinimumRole,
+  canManageMembers,
+  canEdit,
+  type ProjectAccessResult,
+} from './project-access';

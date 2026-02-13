@@ -4,3 +4,5 @@
  */
 export { userQueries } from './users';
 export { sessionQueries } from './sessions';
+export { projectQueries } from './projects';
+export { projectMemberQueries } from './projectMembers';

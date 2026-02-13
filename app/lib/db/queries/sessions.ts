@@ -1,4 +1,4 @@
-import { eq, and, gt } from 'drizzle-orm';
+import { eq, and, gt, sql } from 'drizzle-orm';
 import type { Database } from '../index';
 import { sessions, type NewSession, type Session, type SessionWithUser } from '../schema';
 
@@ -67,7 +67,10 @@ export const sessionQueries = {
    */
   deleteExpired: async (db: Database): Promise<number> => {
     const now = new Date().toISOString();
-    const result = await db.delete(sessions).where(gt(now, sessions.expiresAt)).returning();
+    const result = await db
+      .delete(sessions)
+      .where(gt(sql`${now}`, sessions.expiresAt))
+      .returning();
     return result.length;
   },
 

@@ -1,5 +1,6 @@
-import { Form } from 'react-router';
+import { Form, Link } from 'react-router';
 import { Button, Surface, Text } from '@cloudflare/kumo';
+import { FolderIcon } from '@phosphor-icons/react/dist/ssr';
 import { CloudflareLogo } from '@cloudflare/kumo/components/cloudflare-logo';
 import { SignOutIcon, UserIcon } from '@phosphor-icons/react/dist/ssr';
 
@@ -31,9 +32,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const { user } = loaderData;
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+    <div className="min-h-screen bg-neutral-50">
       {/* Header */}
-      <header className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800">
+      <header className="bg-white border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
@@ -66,36 +67,55 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Surface className="p-8 rounded-xl">
           <div className="text-center">
-            <Text variant="heading1" as="h1" className="mb-4">
-              Welcome back, {user.username}!
-            </Text>
-            <Text variant="secondary" as="p" className="mb-8">
-              You are now signed in to Kumo Budget. This is your protected home page.
-            </Text>
+            <div className="mb-4">
+              <Text variant="heading1" as="h1">
+                Welcome back, {user.username}!
+              </Text>
+            </div>
+            <div className="mb-8">
+              <Text variant="secondary" as="p">
+                You are now signed in to Kumo Budget. This is your protected home page.
+              </Text>
+            </div>
+
+            <Link to="/projects">
+              <Button variant="primary" size="lg">
+                <FolderIcon className="h-5 w-5 mr-2" />
+                View Projects
+              </Button>
+            </Link>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-              <Surface className="p-6 rounded-lg bg-neutral-50 dark:bg-neutral-800">
-                <Text variant="heading3" as="h3" className="mb-2">
-                  Dashboard
-                </Text>
-                <Text variant="secondary" size="sm">
-                  View your financial overview and recent activity.
-                </Text>
-              </Surface>
+              <Link to="/projects" className="block">
+                <Surface className="p-6 rounded-lg bg-neutral-50 hover:bg-neutral-100 transition-colors">
+                  <div className="mb-2">
+                    <Text variant="heading3" as="h3">
+                      Dashboard
+                    </Text>
+                  </div>
+                  <Text variant="secondary" size="sm">
+                    View your financial overview and recent activity.
+                  </Text>
+                </Surface>
+              </Link>
 
-              <Surface className="p-6 rounded-lg bg-neutral-50 dark:bg-neutral-800">
-                <Text variant="heading3" as="h3" className="mb-2">
-                  Transactions
-                </Text>
+              <Surface className="p-6 rounded-lg bg-neutral-50">
+                <div className="mb-2">
+                  <Text variant="heading3" as="h3">
+                    Transactions
+                  </Text>
+                </div>
                 <Text variant="secondary" size="sm">
                   Track your income and expenses with ease.
                 </Text>
               </Surface>
 
-              <Surface className="p-6 rounded-lg bg-neutral-50 dark:bg-neutral-800">
-                <Text variant="heading3" as="h3" className="mb-2">
-                  Reports
-                </Text>
+              <Surface className="p-6 rounded-lg bg-neutral-50">
+                <div className="mb-2">
+                  <Text variant="heading3" as="h3">
+                    Reports
+                  </Text>
+                </div>
                 <Text variant="secondary" size="sm">
                   Generate insights from your spending habits.
                 </Text>

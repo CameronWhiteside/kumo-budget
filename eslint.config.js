@@ -48,6 +48,8 @@ export default tseslint.config(
       '@typescript-eslint/await-thenable': 'error',
       '@typescript-eslint/no-unnecessary-condition': 'warn',
       '@typescript-eslint/restrict-template-expressions': 'off',
+      // Allow throwing Response objects (React Router pattern for HTTP errors)
+      '@typescript-eslint/only-throw-error': 'off',
 
       // General best practices
       'no-console': ['warn', { allow: ['warn', 'error'] }],
