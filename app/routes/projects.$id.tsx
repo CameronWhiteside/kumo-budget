@@ -103,7 +103,7 @@ function SubProjectCard({ project }: { project: Project }) {
     <Link to={`/projects/${project.id}`}>
       <Surface className="p-6 rounded-lg hover:bg-neutral-100 transition-colors">
         <div className="flex items-start gap-3">
-          <FolderIcon className="h-6 w-6 text-blue-500 flex-shrink-0" />
+          <FolderIcon className="h-6 w-6 text-neutral-500 flex-shrink-0" />
           <div>
             <div className="mb-1">
               <Text variant="heading3" as="h3">

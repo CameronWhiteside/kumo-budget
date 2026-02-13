@@ -57,9 +57,10 @@ export async function loader({ request, context }: Route.LoaderArgs) {
  * Role badge component
  */
 function RoleBadge({ role }: { role: ProjectRole }) {
+  // Use neutral colors with different intensities to distinguish roles
   const colors = {
-    owner: 'bg-purple-100 text-purple-800',
-    editor: 'bg-blue-100 text-blue-800',
+    owner: 'bg-neutral-800 text-white',
+    editor: 'bg-neutral-200 text-neutral-700',
     viewer: 'bg-neutral-100 text-neutral-600',
   };
 
@@ -127,7 +128,7 @@ export default function ProjectsIndex({ loaderData }: Route.ComponentProps) {
               <Link key={project.id} to={`/projects/${project.id}`} className="block">
                 <Surface className="p-6 rounded-xl hover:shadow-md transition-shadow h-full">
                   <div className="flex items-start justify-between mb-3">
-                    <FolderIcon className="h-8 w-8 text-orange-500" />
+                    <FolderIcon className="h-8 w-8 text-neutral-500" />
                     <RoleBadge role={role} />
                   </div>
 

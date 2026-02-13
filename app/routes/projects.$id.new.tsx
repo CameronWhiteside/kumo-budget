@@ -136,7 +136,7 @@ export default function NewSubProject({ loaderData }: Route.ComponentProps) {
           <Form method="post" className="space-y-6">
             {/* General error message */}
             {actionData?.error && !actionData.fieldErrors?.name && (
-              <div className="p-3 rounded-lg bg-red-50 border border-red-200">
+              <div className="p-3 rounded-lg bg-neutral-100 border border-neutral-300">
                 <Text variant="error" size="sm">
                   {actionData.error}
                 </Text>

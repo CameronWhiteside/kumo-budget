@@ -327,13 +327,7 @@ export default function ProjectSettings({ loaderData }: Route.ComponentProps) {
 
         {/* Success/Error messages */}
         {actionData && (
-          <div
-            className={`p-4 rounded-lg mb-6 ${
-              actionData.success
-                ? 'bg-green-50 border border-green-200'
-                : 'bg-red-50 border border-red-200'
-            }`}
-          >
+          <div className="p-4 rounded-lg mb-6 bg-neutral-100 border border-neutral-300">
             <Text variant={actionData.success ? 'secondary' : 'error'} size="sm">
               {actionData.success ? actionData.message : actionData.error}
             </Text>
@@ -419,9 +413,9 @@ export default function ProjectSettings({ loaderData }: Route.ComponentProps) {
         </Surface>
 
         {/* Danger zone */}
-        <Surface className="p-6 rounded-xl border-2 border-red-300">
+        <Surface className="p-6 rounded-xl border-2 border-neutral-400">
           <div className="flex items-center gap-2 mb-4">
-            <WarningIcon className="h-5 w-5 text-red-500" />
+            <WarningIcon className="h-5 w-5 text-neutral-600" />
             <Text variant="heading2" as="h2">
               Danger Zone
             </Text>

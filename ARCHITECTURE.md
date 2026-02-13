@@ -283,6 +283,156 @@ npm run dev
 curl -X POST http://localhost:5173/login -d "username=admin&password=admin"
 ```
 
+## Projects Feature
+
+### Overview
+
+Projects are the core organizational unit in Kumo Budget. Users can create projects, invite collaborators, and organize work into nested hierarchies.
+
+### Data Model
+
+```
+projects
+├── id (PK)
+├── name
+├── parent_id (FK → projects.id, nullable)
+├── created_at
+└── updated_at
+
+project_members
+├── project_id (FK → projects.id)
+├── user_id (FK → users.id)
+├── role (owner | editor | viewer)
+└── joined_at
+```
+
+**Key constraints:**
+
+- `parent_id` enables unlimited nesting (self-referential)
+- Deleting a project cascades to all children and members
+- Every project must have at least one owner
+
+### Role-Based Access Control
+
+Three roles with hierarchical permissions:
+
+| Role   | View | Edit | Manage Members | Delete |
+| ------ | ---- | ---- | -------------- | ------ |
+| viewer | ✓    |      |                |        |
+| editor | ✓    | ✓    |                |        |
+| owner  | ✓    | ✓    | ✓              | ✓      |
+
+**Implementation:**
+
+```typescript
+// Check user has required role
+const { role } = await requireProjectAccess(db, userId, projectId, 'editor');
+
+// Helper functions
+canEdit(role); // editor or owner
+isOwner(role); // owner only
+```
+
+### Project Hierarchy
+
+Projects support unlimited nesting:
+
+```
+Home Budget (owner)
+├── Monthly Expenses (editor)
+│   ├── Groceries
+│   └── Utilities
+└── Savings Goals
+    ├── Emergency Fund
+    └── Vacation
+```
+
+**Query patterns:**
+
+```typescript
+// Get immediate children
+await projectQueries.findChildren(db, projectId);
+
+// Get all ancestors (for breadcrumbs)
+await projectQueries.findAncestors(db, projectId);
+```
+
+### Routes
+
+| Route                    | Purpose                                |
+| ------------------------ | -------------------------------------- |
+| `/projects`              | List user's projects                   |
+| `/projects/new`          | Create new project                     |
+| `/projects/:id`          | Project detail (sub-projects, members) |
+| `/projects/:id/new`      | Create sub-project                     |
+| `/projects/:id/settings` | Manage members, delete project         |
+
+### Authorization Middleware
+
+Protected routes use `requireProjectAccess`:
+
+```typescript
+export async function loader({ request, context, params }: Route.LoaderArgs) {
+  const { user } = await requireAuth(request, context.cloudflare.env);
+  const db = createDb(context.cloudflare.env.DB);
+
+  // Throws 403 if user doesn't have required role
+  const { role } = await requireProjectAccess(db, user.id, projectId, 'viewer');
+
+  // ...
+}
+```
+
+### Cascade Delete
+
+When a project is deleted:
+
+1. All child projects are deleted (recursive)
+2. All project_members entries are removed
+3. Parent project is unaffected
+
+This is handled by SQLite foreign key constraints with `ON DELETE CASCADE`.
+
+## UI Guidelines
+
+### Color Usage
+
+**DO use neutral colors only:**
+
+- `text-neutral-*` for text
+- `bg-neutral-*` for backgrounds
+- `border-neutral-*` for borders
+
+**DO NOT use semantic colors:**
+
+- No `text-red-*`, `bg-red-*` etc.
+- No `text-blue-*`, `bg-blue-*` etc.
+- No `text-green-*`, `bg-green-*` etc.
+
+Kumo's `Text variant="error"` handles error text color. For containers, use neutral backgrounds.
+
+### Kumo Component Guidelines
+
+**Text component:**
+
+- Use `variant` for semantic styling (heading1, heading2, heading3, body, secondary, error)
+- Use `size` for sizing (xs, sm, base, lg) - NOT xl/2xl
+- Use `bold` boolean - NOT weight prop
+- Do NOT use `className` - wrap in div if spacing needed
+
+**Button component:**
+
+- Variants: "primary", "secondary", "ghost", "destructive"
+- NOT "danger" (use "destructive")
+
+**Surface component:**
+
+- Can accept `className` for styling
+
+### Light Mode Only
+
+The app uses light mode exclusively. Do not use `dark:` Tailwind variants.
+
 ## Future Considerations
 
 ### Feature Ideas
@@ -292,6 +442,9 @@ curl -X POST http://localhost:5173/login -d "username=admin&password=admin"
 - Remember me checkbox
 - Session listing/revocation
 - Rate limiting on login
+- Project archiving (soft delete)
+- Project templates
+- Activity log per project
 
 ### Infrastructure
 

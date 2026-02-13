@@ -101,7 +101,7 @@ export default function LoginPage() {
 
         <Form method="post" className="space-y-6">
           {actionData?.error && (
-            <div className="p-3 rounded-lg bg-red-50 border border-red-200">
+            <div className="p-3 rounded-lg bg-neutral-100 border border-neutral-300">
               <Text variant="error" size="sm">
                 {actionData.error}
               </Text>
