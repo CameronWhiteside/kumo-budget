@@ -1,0 +1,37 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "kumo-budget",
+	"compatibility_date": "2025-04-04",
+	"main": "./workers/app.ts",
+	"vars": {
+		"SESSION_DURATION_DAYS": "7",
+		"SEED_USERNAME": "admin",
+		"SEED_PASSWORD": "admin"
+	},
+	"observability": {
+		"enabled": true
+	},
+	"compatibility_flags": ["nodejs_compat"],
+
+	// D1 Database binding
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "kumo-budget-db",
+			"database_id": "5a4ee3a4-1f04-4ed9-b22d-7b067e87d3e5",
+			"migrations_dir": "drizzle/migrations"
+		}
+	],
+
+	// R2 Storage binding
+	"r2_buckets": [
+		{
+			"binding": "BUCKET",
+			"bucket_name": "kumo-budget-files"
+		}
+	]
+}

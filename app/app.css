@@ -1,0 +1,30 @@
+/* Kumo UI requires its source to be scanned for Tailwind classes */
+@source "../node_modules/@cloudflare/kumo/dist/**/*.{js,jsx,ts,tsx}";
+
+/* Import Kumo styles BEFORE Tailwind */
+@import '@cloudflare/kumo/styles/tailwind';
+
+/* Import Tailwind */
+@import 'tailwindcss' source('.');
+
+@theme {
+  --font-sans:
+    'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+html,
+body {
+  @apply bg-white dark:bg-neutral-950;
+
+  @media (prefers-color-scheme: dark) {
+    color-scheme: dark;
+  }
+}
+
+/* Ensure full height for auth pages */
+#root,
+html,
+body {
+  min-height: 100vh;
+}
