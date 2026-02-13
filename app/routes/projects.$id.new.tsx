@@ -1,8 +1,8 @@
 import { Form, Link, redirect, useActionData, useNavigation } from 'react-router';
 import { Button, Input, Label, Surface, Text } from '@cloudflare/kumo';
-import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr';
 
 import type { Route } from './+types/projects.$id.new';
+import { AppShell } from '~/components/AppShell';
 import { requireAuth } from '~/lib/auth';
 import { requireProjectAccess, canEdit } from '~/lib/auth/project-access';
 import { createDb } from '~/lib/db';
@@ -94,30 +94,21 @@ export async function action({ request, context, params }: Route.ActionArgs) {
  * New sub-project page component
  */
 export default function NewSubProject({ loaderData }: Route.ComponentProps) {
-  const { parentProject } = loaderData;
+  const { parentProject, user } = loaderData;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <header className="border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4 h-16">
-            <Link to={`/projects/${parentProject.id}`} className="transition-colors">
-              <ArrowLeftIcon className="h-5 w-5" />
-            </Link>
-            <Text variant="heading2" as="h1">
-              New Sub-project
-            </Text>
-          </div>
+    <AppShell user={user}>
+      <div className="max-w-2xl">
+        <div className="mb-6">
+          <Text variant="heading2" as="h1">
+            New Sub-project
+          </Text>
         </div>
-      </header>
 
-      {/* Main content */}
-      <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Surface className="p-8 rounded-xl">
+        <Surface className="p-6 rounded-xl">
           <div className="mb-6">
             <Text variant="secondary" size="sm">
               Creating sub-project under
@@ -128,7 +119,6 @@ export default function NewSubProject({ loaderData }: Route.ComponentProps) {
           </div>
 
           <Form method="post" className="space-y-4">
-            {/* General error message */}
             {actionData?.error && !actionData.fieldErrors?.name && (
               <div className="p-3 rounded-lg">
                 <Text variant="error" size="sm">
@@ -137,7 +127,6 @@ export default function NewSubProject({ loaderData }: Route.ComponentProps) {
               </div>
             )}
 
-            {/* Project name input */}
             <div>
               <Label htmlFor="name">Sub-project name</Label>
               <Input
@@ -160,10 +149,9 @@ export default function NewSubProject({ loaderData }: Route.ComponentProps) {
               )}
             </div>
 
-            {/* Form actions */}
             <div className="flex items-center gap-3 pt-4">
               <Button type="submit" variant="primary" disabled={isSubmitting}>
-                {isSubmitting ? 'Creating...' : 'Create Sub-project'}
+                {isSubmitting ? 'Creating...' : 'Create'}
               </Button>
               <Link to={`/projects/${parentProject.id}`}>
                 <Button type="button" variant="secondary" disabled={isSubmitting}>
@@ -173,7 +161,7 @@ export default function NewSubProject({ loaderData }: Route.ComponentProps) {
             </div>
           </Form>
         </Surface>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

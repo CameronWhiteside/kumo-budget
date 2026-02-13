@@ -90,7 +90,7 @@ export default function LoginPage() {
           </Text>
           <div className="mt-2">
             <Text variant="secondary" as="p" size="sm">
-              Sign in to your account
+              Sign in to continue
             </Text>
           </div>
         </div>

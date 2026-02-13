@@ -1,8 +1,8 @@
 import { Form, Link, redirect, useActionData, useNavigation, useSearchParams } from 'react-router';
 import { Button, Input, Label, Surface, Text } from '@cloudflare/kumo';
-import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr';
 
 import type { Route } from './+types/projects.new';
+import { AppShell } from '~/components/AppShell';
 import { requireAuth } from '~/lib/auth';
 import { createDb } from '~/lib/db';
 import { projectQueries } from '~/lib/db/queries';
@@ -94,7 +94,7 @@ export async function action({ request, context }: Route.ActionArgs) {
  * New project page component
  */
 export default function NewProject({ loaderData }: Route.ComponentProps) {
-  const { projects, parentId } = loaderData;
+  const { projects, parentId, user } = loaderData;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const [searchParams] = useSearchParams();
@@ -105,23 +105,14 @@ export default function NewProject({ loaderData }: Route.ComponentProps) {
   const defaultParentId = parentId ?? (parentParam ? parseInt(parentParam, 10) : '');
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <header className="border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4 h-16">
-            <Link to="/projects" className="transition-colors">
-              <ArrowLeftIcon className="h-5 w-5" />
-            </Link>
-            <Text variant="heading2" as="h1">
-              New Project
-            </Text>
-          </div>
+    <AppShell user={user}>
+      <div className="max-w-2xl">
+        <div className="mb-6">
+          <Text variant="heading2" as="h1">
+            New Project
+          </Text>
         </div>
-      </header>
 
-      {/* Main content */}
-      <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Surface className="p-8 rounded-xl">
           <Form method="post" className="space-y-4">
             {/* General error message */}
@@ -197,7 +188,7 @@ export default function NewProject({ loaderData }: Route.ComponentProps) {
             </div>
           </Form>
         </Surface>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

@@ -5,9 +5,10 @@ import {
   TrashIcon,
   UserIcon,
   PlusIcon,
-  SignOutIcon,
   WarningIcon,
 } from '@phosphor-icons/react/dist/ssr';
+
+import { AppShell } from '~/components/AppShell';
 
 import type { Route } from './+types/projects.$id.settings';
 import { requireAuth } from '~/lib/auth';
@@ -270,38 +271,8 @@ export default function ProjectSettings({ loaderData }: Route.ComponentProps) {
   const isSubmitting = navigation.state === 'submitting';
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <header className="border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link to="/">
-              <Text variant="heading3" as="span">
-                Kumo Budget
-              </Text>
-            </Link>
-
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <UserIcon className="h-5 w-5" />
-                <Text variant="secondary" size="sm">
-                  {user.username}
-                </Text>
-              </div>
-
-              <Form method="post" action="/logout">
-                <Button type="submit" variant="secondary" size="sm">
-                  <SignOutIcon className="h-4 w-4 mr-2" />
-                  Sign out
-                </Button>
-              </Form>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main content */}
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AppShell user={user}>
+      <div className="max-w-3xl mx-auto">
         {/* Back link */}
         <Link to={`/projects/${project.id}`} className="inline-flex items-center gap-2 mb-6">
           <ArrowLeftIcon className="h-4 w-4" />
@@ -434,7 +405,7 @@ export default function ProjectSettings({ loaderData }: Route.ComponentProps) {
             </Button>
           </Form>
         </Surface>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

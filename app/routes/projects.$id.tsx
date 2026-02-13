@@ -1,4 +1,4 @@
-import { Link, Form } from 'react-router';
+import { Link } from 'react-router';
 import { Button, Surface, Text } from '@cloudflare/kumo';
 import {
   GearIcon,
@@ -7,9 +7,10 @@ import {
   FolderIcon,
   HouseIcon,
   CaretRightIcon,
-  SignOutIcon,
   UserIcon,
 } from '@phosphor-icons/react/dist/ssr';
+
+import { AppShell } from '~/components/AppShell';
 
 import type { Route } from './+types/projects.$id';
 import { requireAuth } from '~/lib/auth';
@@ -127,150 +128,118 @@ export default function ProjectDetail({ loaderData }: Route.ComponentProps) {
   const subProjectCount = children.length;
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <header className="border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link to="/">
-              <Text variant="heading3" as="span">
-                Kumo Budget
+    <AppShell user={user}>
+      {/* Breadcrumbs */}
+      <div className="mb-6">
+        <Breadcrumbs ancestors={ancestors} current={project} />
+      </div>
+
+      {/* Project header */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <div className="mb-2">
+            <Text variant="heading1" as="h1">
+              {project.name}
+            </Text>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1">
+              <UsersIcon className="h-4 w-4" />
+              <Text variant="secondary" size="sm">
+                {memberCount} {memberCount === 1 ? 'member' : 'members'}
               </Text>
+            </div>
+            <div className="flex items-center gap-1">
+              <FolderIcon className="h-4 w-4" />
+              <Text variant="secondary" size="sm">
+                {subProjectCount} {subProjectCount === 1 ? 'sub-project' : 'sub-projects'}
+              </Text>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {userCanEdit && (
+            <Link to={`/projects/${project.id}/new`}>
+              <Button variant="secondary">
+                <PlusIcon className="h-4 w-4 mr-2" />
+                New Sub-project
+              </Button>
             </Link>
-
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <UserIcon className="h-5 w-5" />
-                <Text variant="secondary" size="sm">
-                  {user.username}
-                </Text>
-              </div>
-
-              <Form method="post" action="/logout">
-                <Button type="submit" variant="secondary" size="sm">
-                  <SignOutIcon className="h-4 w-4 mr-2" />
-                  Sign out
-                </Button>
-              </Form>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Breadcrumbs */}
-        <div className="mb-6">
-          <Breadcrumbs ancestors={ancestors} current={project} />
-        </div>
-
-        {/* Project header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <div className="mb-2">
-              <Text variant="heading1" as="h1">
-                {project.name}
-              </Text>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1">
-                <UsersIcon className="h-4 w-4" />
-                <Text variant="secondary" size="sm">
-                  {memberCount} {memberCount === 1 ? 'member' : 'members'}
-                </Text>
-              </div>
-              <div className="flex items-center gap-1">
-                <FolderIcon className="h-4 w-4" />
-                <Text variant="secondary" size="sm">
-                  {subProjectCount} {subProjectCount === 1 ? 'sub-project' : 'sub-projects'}
-                </Text>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {userCanEdit && (
-              <Link to={`/projects/${project.id}/new`}>
-                <Button variant="secondary">
-                  <PlusIcon className="h-4 w-4 mr-2" />
-                  New Sub-project
-                </Button>
-              </Link>
-            )}
-
-            {isOwner && (
-              <Link to={`/projects/${project.id}/settings`}>
-                <Button variant="secondary">
-                  <GearIcon className="h-4 w-4 mr-2" />
-                  Settings
-                </Button>
-              </Link>
-            )}
-          </div>
-        </div>
-
-        {/* Sub-projects section */}
-        <Surface className="p-8 rounded-xl">
-          <div className="flex items-center justify-between mb-6">
-            <Text variant="heading2" as="h2">
-              Sub-projects
-            </Text>
-          </div>
-
-          {children.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {children.map((child) => (
-                <SubProjectCard key={child.id} project={child} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <FolderIcon className="h-12 w-12 mx-auto mb-4" />
-              <div className="mb-4">
-                <Text variant="secondary" as="p">
-                  No sub-projects yet
-                </Text>
-              </div>
-              {userCanEdit && (
-                <Link to={`/projects/${project.id}/new`}>
-                  <Button variant="primary">
-                    <PlusIcon className="h-4 w-4 mr-2" />
-                    Create Sub-project
-                  </Button>
-                </Link>
-              )}
-            </div>
           )}
-        </Surface>
 
-        {/* Members quick view */}
-        <Surface className="p-8 rounded-xl mt-6">
-          <div className="flex items-center justify-between mb-6">
-            <Text variant="heading2" as="h2">
-              Members
-            </Text>
-            {isOwner && (
-              <Link to={`/projects/${project.id}/settings`}>
-                <Button variant="secondary" size="sm">
-                  Manage Members
-                </Button>
-              </Link>
-            )}
-          </div>
+          {isOwner && (
+            <Link to={`/projects/${project.id}/settings`}>
+              <Button variant="secondary">
+                <GearIcon className="h-4 w-4 mr-2" />
+                Settings
+              </Button>
+            </Link>
+          )}
+        </div>
+      </div>
 
-          <div className="flex flex-wrap gap-3">
-            {project.members.map((member) => (
-              <div key={member.userId} className="flex items-center gap-2 px-3 py-2 rounded-full">
-                <UserIcon className="h-4 w-4" />
-                <Text size="sm">{member.user.username}</Text>
-                <Text variant="secondary" size="sm">
-                  ({member.role})
-                </Text>
-              </div>
+      {/* Sub-projects section */}
+      <Surface className="p-8 rounded-xl">
+        <div className="flex items-center justify-between mb-6">
+          <Text variant="heading2" as="h2">
+            Sub-projects
+          </Text>
+        </div>
+
+        {children.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {children.map((child) => (
+              <SubProjectCard key={child.id} project={child} />
             ))}
           </div>
-        </Surface>
-      </main>
-    </div>
+        ) : (
+          <div className="text-center py-12">
+            <FolderIcon className="h-12 w-12 mx-auto mb-4" />
+            <div className="mb-4">
+              <Text variant="secondary" as="p">
+                No sub-projects yet
+              </Text>
+            </div>
+            {userCanEdit && (
+              <Link to={`/projects/${project.id}/new`}>
+                <Button variant="primary">
+                  <PlusIcon className="h-4 w-4 mr-2" />
+                  Create Sub-project
+                </Button>
+              </Link>
+            )}
+          </div>
+        )}
+      </Surface>
+
+      {/* Members quick view */}
+      <Surface className="p-8 rounded-xl mt-6">
+        <div className="flex items-center justify-between mb-6">
+          <Text variant="heading2" as="h2">
+            Members
+          </Text>
+          {isOwner && (
+            <Link to={`/projects/${project.id}/settings`}>
+              <Button variant="secondary" size="sm">
+                Manage Members
+              </Button>
+            </Link>
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          {project.members.map((member) => (
+            <div key={member.userId} className="flex items-center gap-2 px-3 py-2 rounded-full">
+              <UserIcon className="h-4 w-4" />
+              <Text size="sm">{member.user.username}</Text>
+              <Text variant="secondary" size="sm">
+                ({member.role})
+              </Text>
+            </div>
+          ))}
+        </div>
+      </Surface>
+    </AppShell>
   );
 }
