@@ -1,6 +1,12 @@
 import { Form, Link, redirect, useActionData, useNavigation } from 'react-router';
-import { Button, Input, Label, Text } from '@cloudflare/kumo';
-import { ArrowLeftIcon, TrashIcon, PlusIcon } from '@phosphor-icons/react/dist/ssr';
+import { Button, Input, Label, Surface, Text } from '@cloudflare/kumo';
+import {
+  ArrowLeftIcon,
+  TrashIcon,
+  UserIcon,
+  PlusIcon,
+  WarningIcon,
+} from '@phosphor-icons/react/dist/ssr';
 
 import { AppShell } from '~/components/AppShell';
 
@@ -197,18 +203,23 @@ function MemberRow({
   const isCurrentUser = member.userId === currentUserId;
 
   return (
-    <div className="flex items-center justify-between py-2">
-      <div className="flex items-center gap-2">
-        <Text bold>{member.user.username}</Text>
-        {isCurrentUser && (
-          <Text variant="secondary" size="sm">
-            (you)
-          </Text>
-        )}
+    <div className="flex items-center justify-between py-3 border-b last:border-b-0">
+      <div className="flex items-center gap-3">
+        <UserIcon className="h-5 w-5" />
+        <div>
+          <Text bold>{member.user.username}</Text>
+          {isCurrentUser && (
+            <Text variant="secondary" size="sm">
+              {' '}
+              (you)
+            </Text>
+          )}
+        </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <Form method="post" className="flex items-center">
+      <div className="flex items-center gap-3">
+        {/* Role dropdown form */}
+        <Form method="post" className="flex items-center gap-2">
           <input type="hidden" name="intent" value="updateRole" />
           <input type="hidden" name="userId" value={member.userId} />
           <select
@@ -216,6 +227,7 @@ function MemberRow({
             defaultValue={member.role}
             onChange={(e) => e.target.form?.requestSubmit()}
             disabled={isSubmitting}
+            className="px-3 py-1.5 text-sm border rounded-md"
             aria-label={`Role for ${member.user.username}`}
           >
             {PROJECT_ROLES.map((role) => (
@@ -226,12 +238,13 @@ function MemberRow({
           </select>
         </Form>
 
+        {/* Remove button form */}
         <Form method="post">
           <input type="hidden" name="intent" value="removeMember" />
           <input type="hidden" name="userId" value={member.userId} />
           <Button
             type="submit"
-            variant="ghost"
+            variant="secondary"
             size="sm"
             disabled={isSubmitting}
             onClick={(e) => {
@@ -259,37 +272,43 @@ export default function ProjectSettings({ loaderData }: Route.ComponentProps) {
 
   return (
     <AppShell user={user}>
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-3xl mx-auto">
+        {/* Back link */}
         <Link to={`/projects/${project.id}`} className="inline-flex items-center gap-2 mb-6">
           <ArrowLeftIcon className="h-4 w-4" />
           <Text size="sm">Back to project</Text>
         </Link>
 
-        <div className="mb-1">
+        {/* Page title */}
+        <div className="mb-2">
           <Text variant="heading1" as="h1">
-            Settings
+            Project Settings
           </Text>
         </div>
         <div className="mb-8">
-          <Text variant="secondary">{project.name}</Text>
+          <Text variant="secondary" as="p">
+            Manage members and settings for {project.name}
+          </Text>
         </div>
 
+        {/* Success/Error messages */}
         {actionData && (
-          <div className="mb-6">
+          <div className="p-4 rounded-lg mb-6 border">
             <Text variant={actionData.success ? 'secondary' : 'error'} size="sm">
               {actionData.success ? actionData.message : actionData.error}
             </Text>
           </div>
         )}
 
-        {/* Members */}
-        <div className="mb-8">
-          <div className="mb-4">
+        {/* Members section */}
+        <Surface className="p-6 rounded-xl mb-6">
+          <div className="mb-6">
             <Text variant="heading2" as="h2">
               Members
             </Text>
           </div>
 
+          {/* Current members list */}
           <div className="mb-6">
             {members.map((member) => (
               <MemberRow
@@ -301,49 +320,67 @@ export default function ProjectSettings({ loaderData }: Route.ComponentProps) {
             ))}
           </div>
 
-          {/* Add member */}
-          <Form method="post" className="flex items-end gap-2">
-            <input type="hidden" name="intent" value="addMember" />
-
-            <div className="flex-1">
-              <Label htmlFor="username">Add member</Label>
-              <Input
-                id="username"
-                name="username"
-                type="text"
-                placeholder="Username"
-                required
-                disabled={isSubmitting}
-              />
+          {/* Add member form */}
+          <div className="pt-4 border-t">
+            <div className="mb-4">
+              <Text variant="heading3" as="h3">
+                Add Member
+              </Text>
             </div>
+            <Form method="post" className="flex items-end gap-3">
+              <input type="hidden" name="intent" value="addMember" />
 
-            <div>
-              <Label htmlFor="role">Role</Label>
-              <select id="role" name="role" defaultValue="viewer" disabled={isSubmitting}>
-                {PROJECT_ROLES.map((role) => (
-                  <option key={role} value={role}>
-                    {role.charAt(0).toUpperCase() + role.slice(1)}
-                  </option>
-                ))}
-              </select>
-            </div>
+              <div className="flex-1">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  name="username"
+                  type="text"
+                  placeholder="Enter username"
+                  required
+                  disabled={isSubmitting}
+                  className="w-full"
+                />
+              </div>
 
-            <Button type="submit" variant="secondary" disabled={isSubmitting}>
-              <PlusIcon className="h-4 w-4" />
-            </Button>
-          </Form>
-        </div>
+              <div className="w-32">
+                <Label htmlFor="role">Role</Label>
+                <select
+                  id="role"
+                  name="role"
+                  defaultValue="viewer"
+                  disabled={isSubmitting}
+                  className="w-full px-3 py-2 border rounded-md"
+                >
+                  {PROJECT_ROLES.map((role) => (
+                    <option key={role} value={role}>
+                      {role.charAt(0).toUpperCase() + role.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-        {/* Delete */}
-        <div className="pt-8">
-          <div className="mb-2">
+              <Button type="submit" variant="primary" disabled={isSubmitting}>
+                <PlusIcon className="h-4 w-4 mr-2" />
+                Add
+              </Button>
+            </Form>
+          </div>
+        </Surface>
+
+        {/* Danger zone */}
+        <Surface className="p-6 rounded-xl border-2">
+          <div className="flex items-center gap-2 mb-4">
+            <WarningIcon className="h-5 w-5" />
             <Text variant="heading2" as="h2">
-              Delete project
+              Danger Zone
             </Text>
           </div>
+
           <div className="mb-4">
-            <Text variant="secondary" size="sm">
-              This will permanently delete {project.name} and all sub-projects.
+            <Text variant="secondary" as="p">
+              Deleting this project will permanently remove it and all its sub-projects. This action
+              cannot be undone.
             </Text>
           </div>
 
@@ -356,7 +393,7 @@ export default function ProjectSettings({ loaderData }: Route.ComponentProps) {
               onClick={(e) => {
                 if (
                   !confirm(
-                    `Are you sure you want to delete "${project.name}"? This cannot be undone.`
+                    `Are you sure you want to delete "${project.name}"? This will also delete all sub-projects and cannot be undone.`
                   )
                 ) {
                   e.preventDefault();
@@ -364,10 +401,10 @@ export default function ProjectSettings({ loaderData }: Route.ComponentProps) {
               }}
             >
               <TrashIcon className="h-4 w-4 mr-2" />
-              Delete
+              Delete Project
             </Button>
           </Form>
-        </div>
+        </Surface>
       </div>
     </AppShell>
   );
