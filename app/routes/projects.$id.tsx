@@ -8,6 +8,9 @@ import {
   HouseIcon,
   CaretRightIcon,
   UserIcon,
+  BankIcon,
+  TagIcon,
+  UploadIcon,
 } from '@phosphor-icons/react/dist/ssr';
 
 import { AppShell } from '~/components/AppShell';
@@ -211,6 +214,67 @@ export default function ProjectDetail({ loaderData }: Route.ComponentProps) {
             )}
           </div>
         )}
+      </Surface>
+
+      {/* Financial tracking section */}
+      <Surface className="p-8 rounded-xl mt-6">
+        <div className="mb-6">
+          <Text variant="heading2" as="h2">
+            Financial Tracking
+          </Text>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Link to={`/projects/${project.id}/accounts`}>
+            <Surface className="p-6 rounded-lg transition-colors">
+              <div className="flex items-center gap-3">
+                <BankIcon className="h-6 w-6" />
+                <div>
+                  <Text variant="heading3" as="h3">
+                    Accounts
+                  </Text>
+                  <Text variant="secondary" size="sm">
+                    View and manage financial accounts
+                  </Text>
+                </div>
+              </div>
+            </Surface>
+          </Link>
+
+          <Link to={`/projects/${project.id}/tags`}>
+            <Surface className="p-6 rounded-lg transition-colors">
+              <div className="flex items-center gap-3">
+                <TagIcon className="h-6 w-6" />
+                <div>
+                  <Text variant="heading3" as="h3">
+                    Tags
+                  </Text>
+                  <Text variant="secondary" size="sm">
+                    Categorize transactions with tags
+                  </Text>
+                </div>
+              </div>
+            </Surface>
+          </Link>
+
+          {userCanEdit && (
+            <Link to={`/projects/${project.id}/import`}>
+              <Surface className="p-6 rounded-lg transition-colors">
+                <div className="flex items-center gap-3">
+                  <UploadIcon className="h-6 w-6" />
+                  <div>
+                    <Text variant="heading3" as="h3">
+                      Import CSV
+                    </Text>
+                    <Text variant="secondary" size="sm">
+                      Import transactions from bank exports
+                    </Text>
+                  </div>
+                </div>
+              </Surface>
+            </Link>
+          )}
+        </div>
       </Surface>
 
       {/* Members quick view */}
