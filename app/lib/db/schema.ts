@@ -5,7 +5,7 @@ import { relations, sql } from 'drizzle-orm';
  * Users table - stores user credentials
  */
 export const users = sqliteTable('users', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+  id: text('id').primaryKey(), // UUID
   username: text('username').notNull().unique(),
   passwordHash: text('password_hash').notNull(),
   createdAt: text('created_at')
@@ -21,7 +21,7 @@ export const users = sqliteTable('users', {
  */
 export const sessions = sqliteTable('sessions', {
   id: text('id').primaryKey(), // UUID
-  userId: integer('user_id')
+  userId: text('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   expiresAt: text('expires_at').notNull(),
@@ -35,10 +35,10 @@ export const sessions = sqliteTable('sessions', {
  * Note: parentId uses self-referential FK - cascade delete handled by SQLite
  */
 export const projects = sqliteTable('projects', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+  id: text('id').primaryKey(), // UUID
   name: text('name').notNull(),
   // Self-referential FK - SQLite handles this with deferred constraint checking
-  parentId: integer('parent_id'),
+  parentId: text('parent_id'),
   createdAt: text('created_at')
     .notNull()
     .default(sql`(datetime('now'))`),
@@ -59,10 +59,10 @@ export type ProjectRole = (typeof PROJECT_ROLES)[number];
 export const projectMembers = sqliteTable(
   'project_members',
   {
-    userId: integer('user_id')
+    userId: text('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    projectId: integer('project_id')
+    projectId: text('project_id')
       .notNull()
       .references(() => projects.id, { onDelete: 'cascade' }),
     role: text('role', { enum: PROJECT_ROLES }).notNull().default('viewer'),
@@ -119,8 +119,8 @@ export type AccountType = (typeof ACCOUNT_TYPES)[number];
  * Accounts table - bank accounts, credit cards, etc.
  */
 export const accounts = sqliteTable('accounts', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  projectId: integer('project_id')
+  id: text('id').primaryKey(), // UUID
+  projectId: text('project_id')
     .notNull()
     .references(() => projects.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
@@ -150,11 +150,11 @@ export type ImportBatchStatus = (typeof IMPORT_BATCH_STATUSES)[number];
  * Import batches table - tracks CSV import state
  */
 export const importBatches = sqliteTable('import_batches', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  projectId: integer('project_id')
+  id: text('id').primaryKey(), // UUID
+  projectId: text('project_id')
     .notNull()
     .references(() => projects.id, { onDelete: 'cascade' }),
-  accountId: integer('account_id')
+  accountId: text('account_id')
     .notNull()
     .references(() => accounts.id, { onDelete: 'cascade' }),
   filename: text('filename').notNull(),
@@ -172,8 +172,8 @@ export const importBatches = sqliteTable('import_batches', {
  * Import batch rows table - temp storage during review
  */
 export const importBatchRows = sqliteTable('import_batch_rows', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  batchId: integer('batch_id')
+  id: text('id').primaryKey(), // UUID
+  batchId: text('batch_id')
     .notNull()
     .references(() => importBatches.id, { onDelete: 'cascade' }),
   rowIndex: integer('row_index').notNull(),
@@ -194,11 +194,11 @@ export const importBatchRows = sqliteTable('import_batch_rows', {
  * Transactions table - income/expense entries
  */
 export const transactions = sqliteTable('transactions', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  projectId: integer('project_id')
+  id: text('id').primaryKey(), // UUID
+  projectId: text('project_id')
     .notNull()
     .references(() => projects.id, { onDelete: 'cascade' }),
-  accountId: integer('account_id')
+  accountId: text('account_id')
     .notNull()
     .references(() => accounts.id, { onDelete: 'cascade' }),
   amount: integer('amount').notNull(), // positive or negative, in cents
@@ -206,7 +206,7 @@ export const transactions = sqliteTable('transactions', {
   description: text('description').notNull(),
   notes: text('notes'),
   sourceHash: text('source_hash'), // SHA256 of original CSV row for duplicate detection
-  importBatchId: integer('import_batch_id').references(() => importBatches.id, {
+  importBatchId: text('import_batch_id').references(() => importBatches.id, {
     onDelete: 'set null',
   }),
   createdAt: text('created_at')
@@ -221,8 +221,8 @@ export const transactions = sqliteTable('transactions', {
  * Tags table - project-scoped labels
  */
 export const tags = sqliteTable('tags', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  projectId: integer('project_id')
+  id: text('id').primaryKey(), // UUID
+  projectId: text('project_id')
     .notNull()
     .references(() => projects.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
@@ -237,10 +237,10 @@ export const tags = sqliteTable('tags', {
 export const transactionTags = sqliteTable(
   'transaction_tags',
   {
-    transactionId: integer('transaction_id')
+    transactionId: text('transaction_id')
       .notNull()
       .references(() => transactions.id, { onDelete: 'cascade' }),
-    tagId: integer('tag_id')
+    tagId: text('tag_id')
       .notNull()
       .references(() => tags.id, { onDelete: 'cascade' }),
   },

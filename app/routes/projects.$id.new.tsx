@@ -27,10 +27,7 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
   const { user } = await requireAuth(request, context.cloudflare.env);
   const db = createDb(context.cloudflare.env.DB);
 
-  const parentId = Number(params.id);
-  if (isNaN(parentId)) {
-    throw new Response('Invalid project ID', { status: 400 });
-  }
+  const parentId = params.id;
 
   // Require at least editor access to create sub-projects
   const { role } = await requireProjectAccess(db, user.id, parentId, 'editor');
@@ -55,10 +52,7 @@ export async function action({ request, context, params }: Route.ActionArgs) {
   const { user } = await requireAuth(request, context.cloudflare.env);
   const db = createDb(context.cloudflare.env.DB);
 
-  const parentId = Number(params.id);
-  if (isNaN(parentId)) {
-    throw new Response('Invalid project ID', { status: 400 });
-  }
+  const parentId = params.id;
 
   // Verify editor access to parent
   await requireProjectAccess(db, user.id, parentId, 'editor');

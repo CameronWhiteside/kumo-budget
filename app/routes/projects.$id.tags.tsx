@@ -21,11 +21,7 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
   const { user } = await requireAuth(request, context.cloudflare.env);
   const db = createDb(context.cloudflare.env.DB);
 
-  const projectId = Number(params.id);
-  if (isNaN(projectId)) {
-    throw new Response('Invalid project ID', { status: 400 });
-  }
-
+  const projectId = params.id;
   await requireProjectAccess(db, user.id, projectId, 'viewer');
 
   const project = await projectQueries.findById(db, projectId);
@@ -46,11 +42,7 @@ export async function action({ request, context, params }: Route.ActionArgs) {
   const { user } = await requireAuth(request, context.cloudflare.env);
   const db = createDb(context.cloudflare.env.DB);
 
-  const projectId = Number(params.id);
-  if (isNaN(projectId)) {
-    throw new Response('Invalid project ID', { status: 400 });
-  }
-
+  const projectId = params.id;
   await requireProjectAccess(db, user.id, projectId, 'editor');
 
   const formData = await request.formData();
@@ -69,13 +61,13 @@ export async function action({ request, context, params }: Route.ActionArgs) {
         return { error: 'Tag already exists' };
       }
 
-      await tagQueries.create(db, { projectId, name: name.trim() });
+      await tagQueries.create(db, { id: crypto.randomUUID(), projectId, name: name.trim() });
       return { success: true };
     }
 
     case 'delete': {
-      const tagId = Number(formData.get('tagId'));
-      if (isNaN(tagId)) {
+      const tagId = formData.get('tagId') as string;
+      if (!tagId) {
         return { error: 'Invalid tag ID' };
       }
 

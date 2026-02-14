@@ -6,33 +6,27 @@ import {
   type Project,
   type ProjectWithMembers,
   type ProjectRole,
+  type User,
 } from '../schema';
 
 /**
  * Project query functions
- * All database operations related to projects are encapsulated here.
- * Routes should never call db methods directly.
  */
 export const projectQueries = {
   /**
    * Create a new project and add the owner as a member with 'owner' role
-   * @param db - Database instance
-   * @param data - Project data including name, optional parentId, and ownerId
-   * @returns Created project
    */
   create: async (
     db: Database,
-    data: { name: string; parentId?: number | null; ownerId: number }
+    data: { name: string; parentId?: Project['id'] | null; ownerId: User['id'] }
   ): Promise<Project> => {
     const { name, parentId, ownerId } = data;
 
-    // Insert project
     const [project] = await db
       .insert(projects)
-      .values({ name, parentId: parentId ?? null })
+      .values({ id: crypto.randomUUID(), name, parentId: parentId ?? null })
       .returning();
 
-    // Add owner as member with 'owner' role
     await db.insert(projectMembers).values({
       userId: ownerId,
       projectId: project.id,
@@ -44,11 +38,8 @@ export const projectQueries = {
 
   /**
    * Find a project by its ID
-   * @param db - Database instance
-   * @param id - Project ID to search for
-   * @returns Project or undefined if not found
    */
-  findById: async (db: Database, id: number): Promise<Project | undefined> => {
+  findById: async (db: Database, id: Project['id']): Promise<Project | undefined> => {
     return db.query.projects.findFirst({
       where: eq(projects.id, id),
     });
@@ -56,13 +47,10 @@ export const projectQueries = {
 
   /**
    * Find a project by ID with all members and their user data
-   * @param db - Database instance
-   * @param id - Project ID to search for
-   * @returns Project with members or undefined if not found
    */
   findByIdWithMembers: async (
     db: Database,
-    id: number
+    id: Project['id']
   ): Promise<ProjectWithMembers | undefined> => {
     const result = await db.query.projects.findFirst({
       where: eq(projects.id, id),
@@ -79,11 +67,8 @@ export const projectQueries = {
 
   /**
    * Find all projects a user has access to (via projectMembers)
-   * @param db - Database instance
-   * @param userId - User ID to find projects for
-   * @returns Array of projects the user is a member of
    */
-  findUserProjects: async (db: Database, userId: number): Promise<Project[]> => {
+  findUserProjects: async (db: Database, userId: User['id']): Promise<Project[]> => {
     const memberships = await db.query.projectMembers.findMany({
       where: eq(projectMembers.userId, userId),
       with: {
@@ -95,11 +80,8 @@ export const projectQueries = {
 
   /**
    * Find direct child projects of a parent project
-   * @param db - Database instance
-   * @param parentId - Parent project ID
-   * @returns Array of child projects
    */
-  findChildren: async (db: Database, parentId: number): Promise<Project[]> => {
+  findChildren: async (db: Database, parentId: Project['id']): Promise<Project[]> => {
     return db.query.projects.findMany({
       where: eq(projects.parentId, parentId),
     });
@@ -107,16 +89,11 @@ export const projectQueries = {
 
   /**
    * Find all ancestor projects (for breadcrumbs navigation)
-   * Uses recursive approach to traverse up the hierarchy
-   * @param db - Database instance
-   * @param projectId - Project ID to find ancestors for
-   * @returns Array of ancestor projects, ordered from root to immediate parent
    */
-  findAncestors: async (db: Database, projectId: number): Promise<Project[]> => {
+  findAncestors: async (db: Database, projectId: Project['id']): Promise<Project[]> => {
     const ancestors: Project[] = [];
-    let currentId: number | null = projectId;
+    let currentId: Project['parentId'] = projectId;
 
-    // First, get the current project to find its parent
     const current = await db.query.projects.findFirst({
       where: eq(projects.id, currentId),
     });
@@ -127,7 +104,6 @@ export const projectQueries = {
 
     currentId = current.parentId;
 
-    // Traverse up the hierarchy
     while (currentId !== null) {
       const parent = await db.query.projects.findFirst({
         where: eq(projects.id, currentId),
@@ -137,7 +113,7 @@ export const projectQueries = {
         break;
       }
 
-      ancestors.unshift(parent); // Add to beginning to maintain root-to-parent order
+      ancestors.unshift(parent);
       currentId = parent.parentId;
     }
 
@@ -146,14 +122,10 @@ export const projectQueries = {
 
   /**
    * Update a project's properties
-   * @param db - Database instance
-   * @param id - Project ID to update
-   * @param data - Data to update (name)
-   * @returns Updated project or undefined if not found
    */
   update: async (
     db: Database,
-    id: number,
+    id: Project['id'],
     data: { name?: string }
   ): Promise<Project | undefined> => {
     const [updated] = await db
@@ -170,11 +142,8 @@ export const projectQueries = {
 
   /**
    * Delete a project by ID
-   * Children are automatically deleted via FK cascade
-   * @param db - Database instance
-   * @param id - Project ID to delete
    */
-  delete: async (db: Database, id: number): Promise<void> => {
+  delete: async (db: Database, id: Project['id']): Promise<void> => {
     await db.delete(projects).where(eq(projects.id, id));
   },
 };

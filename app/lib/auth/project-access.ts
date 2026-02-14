@@ -1,5 +1,5 @@
 import type { Database } from '~/lib/db';
-import type { ProjectRole } from '~/lib/db/schema';
+import type { ProjectRole, User, Project } from '~/lib/db/schema';
 
 /**
  * Role hierarchy for permission checking
@@ -82,8 +82,8 @@ export function canEdit(role: ProjectRole): boolean {
  */
 export async function getProjectRole(
   db: Database,
-  userId: number,
-  projectId: number
+  userId: User['id'],
+  projectId: Project['id']
 ): Promise<ProjectRole | null> {
   // Import dynamically to avoid circular dependency issues
   // The query layer will provide this function
@@ -123,8 +123,8 @@ export async function getProjectRole(
  */
 export async function requireProjectAccess(
   db: Database,
-  userId: number,
-  projectId: number,
+  userId: User['id'],
+  projectId: Project['id'],
   minimumRole: ProjectRole
 ): Promise<ProjectAccessResult> {
   const role = await getProjectRole(db, userId, projectId);

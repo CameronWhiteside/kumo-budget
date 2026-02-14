@@ -18,6 +18,7 @@ const config = {
 
 async function generateSeedSQL(): Promise<void> {
   const hash = await bcrypt.hash(config.password, config.bcryptRounds);
+  const userId = crypto.randomUUID();
 
   // Escape single quotes in values for SQL safety
   const escapedUsername = config.username.replace(/'/g, "''");
@@ -29,8 +30,8 @@ async function generateSeedSQL(): Promise<void> {
 -- Password: ${config.password}
 -- Generated: ${new Date().toISOString()}
 
-INSERT OR IGNORE INTO users (username, password_hash)
-VALUES ('${escapedUsername}', '${escapedHash}');
+INSERT OR IGNORE INTO users (id, username, password_hash)
+VALUES ('${userId}', '${escapedUsername}', '${escapedHash}');
 `.trim();
 
   // Output SQL to stdout for piping to wrangler

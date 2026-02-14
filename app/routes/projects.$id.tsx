@@ -39,10 +39,7 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
   const { user } = await requireAuth(request, context.cloudflare.env);
   const db = createDb(context.cloudflare.env.DB);
 
-  const projectId = Number(params.id);
-  if (isNaN(projectId)) {
-    throw new Response('Invalid project ID', { status: 400 });
-  }
+  const projectId = params.id;
 
   // Check user has at least viewer access
   const { role } = await requireProjectAccess(db, user.id, projectId, 'viewer');

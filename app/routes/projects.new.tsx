@@ -35,7 +35,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 
   return {
     projects,
-    parentId: parentId ? parseInt(parentId, 10) : null,
+    parentId: parentId ?? null,
     user: { id: user.id, username: user.username },
   };
 }
@@ -66,12 +66,9 @@ export async function action({ request, context }: Route.ActionArgs) {
   }
 
   // Parse optional parent ID
-  let parentId: number | null = null;
+  let parentId: string | null = null;
   if (typeof parentIdStr === 'string' && parentIdStr.trim()) {
-    parentId = parseInt(parentIdStr, 10);
-    if (isNaN(parentId)) {
-      return { error: 'Invalid parent project', fieldErrors: {} };
-    }
+    parentId = parentIdStr.trim();
 
     // Verify user has access to parent project
     const parentProject = await projectQueries.findById(db, parentId);
@@ -150,9 +147,13 @@ export default function NewProject({ loaderData }: Route.ComponentProps) {
                 disabled={isSubmitting}
                 hideLabel={false}
                 placeholder="None (top-level project)"
+                items={projects.map((project: Project) => ({
+                  value: project.id,
+                  label: project.name,
+                }))}
               >
                 {projects.map((project: Project) => (
-                  <Select.Option key={project.id} value={String(project.id)}>
+                  <Select.Option key={project.id} value={project.id}>
                     {project.name}
                   </Select.Option>
                 ))}

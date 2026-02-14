@@ -5,7 +5,7 @@ import { createDb } from '~/lib/db';
 import { importBatchQueries, importBatchRowQueries, tagQueries } from '~/lib/db/queries';
 
 interface RowInput {
-  id: number;
+  id: string;
   description: string;
   amount: number;
 }
@@ -28,11 +28,8 @@ export async function action({ request, context, params }: Route.ActionArgs) {
   const db = createDb(context.cloudflare.env.DB);
   const ai = context.cloudflare.env.AI;
 
-  const projectId = Number(params.id);
-  const batchId = Number(params.batchId);
-  if (isNaN(projectId) || isNaN(batchId)) {
-    return Response.json({ error: 'Invalid ID' }, { status: 400 });
-  }
+  const projectId = params.id;
+  const batchId = params.batchId;
 
   await requireProjectAccess(db, user.id, projectId, 'editor');
 
@@ -62,7 +59,7 @@ export async function action({ request, context, params }: Route.ActionArgs) {
 
   // Process in batches of 20
   const batchSize = 20;
-  const allSuggestions: { rowId: number; tagIds: number[] }[] = [];
+  const allSuggestions: { rowId: string; tagIds: string[] }[] = [];
 
   for (let i = 0; i < rows.length; i += batchSize) {
     const rowBatch = rows.slice(i, i + batchSize);
@@ -124,7 +121,7 @@ Only include tags that clearly match the transaction. If unsure, use an empty ar
             const row = rowBatch[rowIndex];
             const tagIds = item.tags
               .map((tagName) => tagNameToId.get(tagName.toLowerCase()))
-              .filter((id): id is number => id !== undefined);
+              .filter((id): id is string => id !== undefined);
 
             if (tagIds.length > 0) {
               allSuggestions.push({ rowId: row.id, tagIds });

@@ -8,35 +8,25 @@ import {
   type ImportBatchRow,
   type NewImportBatchRow,
   type ImportBatchStatus,
+  type Project,
+  type Tag,
 } from '../schema';
 
-/**
- * Column mapping interface for CSV imports
- */
 export interface ColumnMapping {
   date: string;
   amount: string;
   description: string;
 }
 
-/**
- * Import batch queries
- */
 export const importBatchQueries = {
-  /**
-   * Find batch by ID
-   */
-  async findById(db: Database, id: number): Promise<ImportBatch | undefined> {
+  async findById(db: Database, id: ImportBatch['id']): Promise<ImportBatch | undefined> {
     return db.select().from(importBatches).where(eq(importBatches.id, id)).get();
   },
 
-  /**
-   * Find batch by ID and verify it belongs to project
-   */
   async findByIdAndProject(
     db: Database,
-    id: number,
-    projectId: number
+    id: ImportBatch['id'],
+    projectId: Project['id']
   ): Promise<ImportBatch | undefined> {
     return db
       .select()
@@ -45,26 +35,17 @@ export const importBatchQueries = {
       .get();
   },
 
-  /**
-   * Find all batches for a project
-   */
-  async findByProject(db: Database, projectId: number): Promise<ImportBatch[]> {
+  async findByProject(db: Database, projectId: Project['id']): Promise<ImportBatch[]> {
     return db.select().from(importBatches).where(eq(importBatches.projectId, projectId)).all();
   },
 
-  /**
-   * Create a new import batch
-   */
   async create(db: Database, data: NewImportBatch): Promise<ImportBatch> {
     return db.insert(importBatches).values(data).returning().get();
   },
 
-  /**
-   * Update batch status
-   */
   async updateStatus(
     db: Database,
-    id: number,
+    id: ImportBatch['id'],
     status: ImportBatchStatus,
     completedAt?: string
   ): Promise<ImportBatch | undefined> {
@@ -75,12 +56,9 @@ export const importBatchQueries = {
     return db.update(importBatches).set(updates).where(eq(importBatches.id, id)).returning().get();
   },
 
-  /**
-   * Update column mapping
-   */
   async updateColumnMapping(
     db: Database,
-    id: number,
+    id: ImportBatch['id'],
     columnMapping: ColumnMapping
   ): Promise<ImportBatch | undefined> {
     return db
@@ -91,60 +69,36 @@ export const importBatchQueries = {
       .get();
   },
 
-  /**
-   * Clear R2 key (after deletion)
-   */
-  async clearR2Key(db: Database, id: number): Promise<void> {
+  async clearR2Key(db: Database, id: ImportBatch['id']): Promise<void> {
     await db.update(importBatches).set({ r2Key: null }).where(eq(importBatches.id, id));
   },
 
-  /**
-   * Delete batch (and cascade to rows)
-   */
-  async delete(db: Database, id: number): Promise<void> {
+  async delete(db: Database, id: ImportBatch['id']): Promise<void> {
     await db.delete(importBatches).where(eq(importBatches.id, id));
   },
 };
 
-/**
- * Import batch row queries
- */
 export const importBatchRowQueries = {
-  /**
-   * Find all rows for a batch
-   */
-  async findByBatch(db: Database, batchId: number): Promise<ImportBatchRow[]> {
+  async findByBatch(db: Database, batchId: ImportBatch['id']): Promise<ImportBatchRow[]> {
     return db.select().from(importBatchRows).where(eq(importBatchRows.batchId, batchId)).all();
   },
 
-  /**
-   * Find row by ID
-   */
-  async findById(db: Database, id: number): Promise<ImportBatchRow | undefined> {
+  async findById(db: Database, id: ImportBatchRow['id']): Promise<ImportBatchRow | undefined> {
     return db.select().from(importBatchRows).where(eq(importBatchRows.id, id)).get();
   },
 
-  /**
-   * Create a single row
-   */
   async create(db: Database, data: NewImportBatchRow): Promise<ImportBatchRow> {
     return db.insert(importBatchRows).values(data).returning().get();
   },
 
-  /**
-   * Create multiple rows (bulk)
-   */
   async createMany(db: Database, data: NewImportBatchRow[]): Promise<ImportBatchRow[]> {
     if (data.length === 0) return [];
     return db.insert(importBatchRows).values(data).returning().all();
   },
 
-  /**
-   * Update row exclusion status
-   */
   async updateExcluded(
     db: Database,
-    id: number,
+    id: ImportBatchRow['id'],
     excluded: boolean
   ): Promise<ImportBatchRow | undefined> {
     return db
@@ -155,13 +109,10 @@ export const importBatchRowQueries = {
       .get();
   },
 
-  /**
-   * Update row tags
-   */
   async updateTags(
     db: Database,
-    id: number,
-    tagIds: number[]
+    id: ImportBatchRow['id'],
+    tagIds: Tag['id'][]
   ): Promise<ImportBatchRow | undefined> {
     return db
       .update(importBatchRows)
@@ -171,12 +122,10 @@ export const importBatchRowQueries = {
       .get();
   },
 
-  /**
-   * Bulk update tags for multiple rows
-   */
-  async bulkUpdateTags(db: Database, updates: { id: number; tagIds: number[] }[]): Promise<void> {
-    // SQLite doesn't support bulk update with different values easily,
-    // so we do individual updates in a transaction
+  async bulkUpdateTags(
+    db: Database,
+    updates: { id: ImportBatchRow['id']; tagIds: Tag['id'][] }[]
+  ): Promise<void> {
     for (const update of updates) {
       await db
         .update(importBatchRows)
@@ -185,17 +134,11 @@ export const importBatchRowQueries = {
     }
   },
 
-  /**
-   * Delete all rows for a batch
-   */
-  async deleteByBatch(db: Database, batchId: number): Promise<void> {
+  async deleteByBatch(db: Database, batchId: ImportBatch['id']): Promise<void> {
     await db.delete(importBatchRows).where(eq(importBatchRows.batchId, batchId));
   },
 
-  /**
-   * Get non-excluded rows for commit
-   */
-  async getNonExcluded(db: Database, batchId: number): Promise<ImportBatchRow[]> {
+  async getNonExcluded(db: Database, batchId: ImportBatch['id']): Promise<ImportBatchRow[]> {
     return db
       .select()
       .from(importBatchRows)

@@ -23,11 +23,7 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
   const { user } = await requireAuth(request, context.cloudflare.env);
   const db = createDb(context.cloudflare.env.DB);
 
-  const projectId = Number(params.id);
-  if (isNaN(projectId)) {
-    throw new Response('Invalid project ID', { status: 400 });
-  }
-
+  const projectId = params.id;
   await requireProjectAccess(db, user.id, projectId, 'editor');
 
   const project = await projectQueries.findById(db, projectId);
@@ -45,11 +41,7 @@ export async function action({ request, context, params }: Route.ActionArgs) {
   const { user } = await requireAuth(request, context.cloudflare.env);
   const db = createDb(context.cloudflare.env.DB);
 
-  const projectId = Number(params.id);
-  if (isNaN(projectId)) {
-    throw new Response('Invalid project ID', { status: 400 });
-  }
-
+  const projectId = params.id;
   await requireProjectAccess(db, user.id, projectId, 'editor');
 
   const formData = await request.formData();
@@ -75,6 +67,7 @@ export async function action({ request, context, params }: Route.ActionArgs) {
   }
 
   const account = await accountQueries.create(db, {
+    id: crypto.randomUUID(),
     projectId,
     name: name.trim(),
     type,
@@ -148,6 +141,7 @@ export default function NewAccount({ loaderData, actionData }: Route.ComponentPr
             }}
             disabled={isSubmitting}
             hideLabel={false}
+            items={ACCOUNT_TYPE_OPTIONS}
           >
             {ACCOUNT_TYPE_OPTIONS.map((opt) => (
               <Select.Option key={opt.value} value={opt.value}>

@@ -9,68 +9,90 @@ import {
   Text,
 } from '@cloudflare/kumo';
 
-import type { Route } from './+types/login';
+import type { Route } from './+types/register';
 import { createDb } from '~/lib/db';
 import { userQueries } from '~/lib/db/queries';
 import {
-  verifyPassword,
+  hashPassword,
   createSession,
   createSessionCookie,
   redirectIfAuthenticated,
 } from '~/lib/auth';
 
-/**
- * Login page meta information
- */
 export function meta(): Route.MetaDescriptors {
   return [
-    { title: 'Login - Kumo Budget' },
-    { name: 'description', content: 'Sign in to your account' },
+    { title: 'Sign Up - Kumo Budget' },
+    { name: 'description', content: 'Create a new account' },
   ];
 }
 
-/**
- * Loader - redirects to home if already logged in
- */
 export async function loader({ request, context }: Route.LoaderArgs) {
   await redirectIfAuthenticated(request, context.cloudflare.env);
   return null;
 }
 
-/**
- * Action - handles login form submission
- */
 export async function action({ request, context }: Route.ActionArgs) {
   const formData = await request.formData();
   const username = formData.get('username');
   const password = formData.get('password');
+  const confirmPassword = formData.get('confirmPassword');
 
   // Validate input
-  if (typeof username !== 'string' || typeof password !== 'string') {
+  if (
+    typeof username !== 'string' ||
+    typeof password !== 'string' ||
+    typeof confirmPassword !== 'string'
+  ) {
     return { error: 'Invalid form data' };
   }
 
-  if (!username.trim() || !password.trim()) {
-    return { error: 'Username and password are required' };
+  const trimmedUsername = username.trim();
+
+  if (!trimmedUsername) {
+    return { error: 'Username is required' };
+  }
+
+  if (trimmedUsername.length < 3) {
+    return { error: 'Username must be at least 3 characters' };
+  }
+
+  if (trimmedUsername.length > 50) {
+    return { error: 'Username must be 50 characters or less' };
+  }
+
+  if (!/^[a-zA-Z0-9_-]+$/.test(trimmedUsername)) {
+    return { error: 'Username can only contain letters, numbers, underscores, and hyphens' };
+  }
+
+  if (!password) {
+    return { error: 'Password is required' };
+  }
+
+  if (password.length < 6) {
+    return { error: 'Password must be at least 6 characters' };
+  }
+
+  if (password !== confirmPassword) {
+    return { error: 'Passwords do not match' };
   }
 
   const db = createDb(context.cloudflare.env.DB);
 
-  // Find user
-  const user = await userQueries.findByUsername(db, username.trim());
-
-  if (!user) {
-    return { error: 'Invalid username or password' };
+  // Check if username already exists
+  const existingUser = await userQueries.findByUsername(db, trimmedUsername);
+  if (existingUser) {
+    return { error: 'Username is already taken' };
   }
 
-  // Verify password
-  const isValid = await verifyPassword(password, user.passwordHash);
+  // Hash password and create user
+  const passwordHash = await hashPassword(password);
+  const user = await userQueries.create(db, {
+    id: crypto.randomUUID(),
+    username: trimmedUsername,
+    passwordHash,
+  });
 
-  if (!isValid) {
-    return { error: 'Invalid username or password' };
-  }
-
-  // Create session
+  // Create session and log them in
   const session = await createSession(db, user.id, context.cloudflare.env);
 
   // Redirect to home with session cookie
@@ -81,10 +103,7 @@ export async function action({ request, context }: Route.ActionArgs) {
   });
 }
 
-/**
- * Login page component
- */
-export default function LoginPage() {
+export default function RegisterPage() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
@@ -98,7 +117,7 @@ export default function LoginPage() {
           </Text>
           <div className="mt-2">
             <Text variant="secondary" as="p" size="sm">
-              Sign in to continue
+              Create your account
             </Text>
           </div>
         </div>
@@ -110,7 +129,7 @@ export default function LoginPage() {
             label="Username"
             name="username"
             type="text"
-            placeholder="Enter your username"
+            placeholder="Choose a username"
             autoComplete="username"
             required
             disabled={isSubmitting}
@@ -120,22 +139,32 @@ export default function LoginPage() {
             label="Password"
             name="password"
             type="password"
-            placeholder="Enter your password"
-            autoComplete="current-password"
+            placeholder="Choose a password"
+            autoComplete="new-password"
+            required
+            disabled={isSubmitting}
+          />
+
+          <Input
+            label="Confirm Password"
+            name="confirmPassword"
+            type="password"
+            placeholder="Confirm your password"
+            autoComplete="new-password"
             required
             disabled={isSubmitting}
           />
 
           <div className="pt-2">
             <Button type="submit" variant="primary" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? 'Signing in...' : 'Sign in'}
+              {isSubmitting ? 'Creating account...' : 'Create account'}
             </Button>
           </div>
         </Form>
 
         <div className="mt-6 text-center">
           <Text variant="secondary" size="sm">
-            Don't have an account? <KumoLink render={<Link to="/register" />}>Sign up</KumoLink>
+            Already have an account? <KumoLink render={<Link to="/login" />}>Sign in</KumoLink>
           </Text>
         </div>
       </Surface>

@@ -79,11 +79,8 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
   const db = createDb(context.cloudflare.env.DB);
   const bucket = context.cloudflare.env.BUCKET;
 
-  const projectId = Number(params.id);
-  const batchId = Number(params.batchId);
-  if (isNaN(projectId) || isNaN(batchId)) {
-    throw new Response('Invalid ID', { status: 400 });
-  }
+  const projectId = params.id;
+  const batchId = params.batchId;
 
   await requireProjectAccess(db, user.id, projectId, 'editor');
 
@@ -128,11 +125,8 @@ export async function action({ request, context, params }: Route.ActionArgs) {
   const db = createDb(context.cloudflare.env.DB);
   const bucket = context.cloudflare.env.BUCKET;
 
-  const projectId = Number(params.id);
-  const batchId = Number(params.batchId);
-  if (isNaN(projectId) || isNaN(batchId)) {
-    throw new Response('Invalid ID', { status: 400 });
-  }
+  const projectId = params.id;
+  const batchId = params.batchId;
 
   await requireProjectAccess(db, user.id, projectId, 'editor');
 

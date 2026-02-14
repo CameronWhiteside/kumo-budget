@@ -43,11 +43,8 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
   const { user } = await requireAuth(request, context.cloudflare.env);
   const db = createDb(context.cloudflare.env.DB);
 
-  const projectId = Number(params.id);
-  const batchId = Number(params.batchId);
-  if (isNaN(projectId) || isNaN(batchId)) {
-    throw new Response('Invalid ID', { status: 400 });
-  }
+  const projectId = params.id;
+  const batchId = params.batchId;
 
   await requireProjectAccess(db, user.id, projectId, 'editor');
 
@@ -80,11 +77,8 @@ export async function action({ request, context, params }: Route.ActionArgs) {
   const db = createDb(context.cloudflare.env.DB);
   const bucket = context.cloudflare.env.BUCKET;
 
-  const projectId = Number(params.id);
-  const batchId = Number(params.batchId);
-  if (isNaN(projectId) || isNaN(batchId)) {
-    throw new Response('Invalid ID', { status: 400 });
-  }
+  const projectId = params.id;
+  const batchId = params.batchId;
 
   await requireProjectAccess(db, user.id, projectId, 'editor');
 
@@ -192,7 +186,7 @@ function RowTagSelector({ row, tags }: { row: ImportBatchRow; tags: Tag[] }) {
     void fetcher.submit(
       {
         intent: 'updateTags',
-        rowId: String(row.id),
+        rowId: row.id,
         tagIds: JSON.stringify(newTagIds),
       },
       { method: 'post' }
@@ -238,7 +232,7 @@ export default function ReviewImport({ loaderData, actionData }: Route.Component
     void fetcher.submit(
       {
         intent: 'toggleExclude',
-        rowId: String(row.id),
+        rowId: row.id,
         excluded: String(!row.excluded),
       },
       { method: 'post' }

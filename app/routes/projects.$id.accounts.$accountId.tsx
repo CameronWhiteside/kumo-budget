@@ -29,11 +29,8 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
   const { user } = await requireAuth(request, context.cloudflare.env);
   const db = createDb(context.cloudflare.env.DB);
 
-  const projectId = Number(params.id);
-  const accountId = Number(params.accountId);
-  if (isNaN(projectId) || isNaN(accountId)) {
-    throw new Response('Invalid ID', { status: 400 });
-  }
+  const projectId = params.id;
+  const accountId = params.accountId;
 
   await requireProjectAccess(db, user.id, projectId, 'viewer');
 
@@ -61,11 +58,8 @@ export async function action({ request, context, params }: Route.ActionArgs) {
   const { user } = await requireAuth(request, context.cloudflare.env);
   const db = createDb(context.cloudflare.env.DB);
 
-  const projectId = Number(params.id);
-  const accountId = Number(params.accountId);
-  if (isNaN(projectId) || isNaN(accountId)) {
-    throw new Response('Invalid ID', { status: 400 });
-  }
+  const projectId = params.id;
+  const accountId = params.accountId;
 
   await requireProjectAccess(db, user.id, projectId, 'editor');
 

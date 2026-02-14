@@ -12,6 +12,11 @@ import { createDb } from '~/lib/db';
 import { projectQueries, projectMemberQueries } from '~/lib/db/queries';
 import { PROJECT_ROLES, type ProjectRole, type ProjectMemberWithUser } from '~/lib/db/schema';
 
+const ROLE_ITEMS = PROJECT_ROLES.map((role) => ({
+  value: role,
+  label: role.charAt(0).toUpperCase() + role.slice(1),
+}));
+
 export function meta({ loaderData }: Route.MetaArgs): Route.MetaDescriptors {
   const projectName = loaderData?.project?.name ?? 'Project';
   return [
@@ -24,11 +29,7 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
   const { user } = await requireAuth(request, context.cloudflare.env);
   const db = createDb(context.cloudflare.env.DB);
 
-  const projectId = Number(params.id);
-  if (isNaN(projectId)) {
-    throw new Response('Invalid project ID', { status: 400 });
-  }
-
+  const projectId = params.id;
   await requireProjectAccess(db, user.id, projectId, 'owner');
 
   const project = await projectQueries.findByIdWithMembers(db, projectId);
@@ -53,11 +54,7 @@ export async function action({
   const { user } = await requireAuth(request, context.cloudflare.env);
   const db = createDb(context.cloudflare.env.DB);
 
-  const projectId = Number(params.id);
-  if (isNaN(projectId)) {
-    throw new Response('Invalid project ID', { status: 400 });
-  }
-
+  const projectId = params.id;
   await requireProjectAccess(db, user.id, projectId, 'owner');
 
   const formData = await request.formData();
@@ -94,10 +91,10 @@ export async function action({
     }
 
     case 'updateRole': {
-      const memberUserId = Number(formData.get('userId'));
+      const memberUserId = formData.get('userId') as string;
       const newRole = formData.get('role') as ProjectRole;
 
-      if (isNaN(memberUserId)) {
+      if (!memberUserId) {
         return { success: false, error: 'Invalid user ID' };
       }
 
@@ -125,9 +122,9 @@ export async function action({
     }
 
     case 'removeMember': {
-      const memberUserId = Number(formData.get('userId'));
+      const memberUserId = formData.get('userId') as string;
 
-      if (isNaN(memberUserId)) {
+      if (!memberUserId) {
         return { success: false, error: 'Invalid user ID' };
       }
 
@@ -173,7 +170,7 @@ function MemberRow({
     if (!newRole) return;
     const formData = new FormData();
     formData.set('intent', 'updateRole');
-    formData.set('userId', String(member.userId));
+    formData.set('userId', member.userId);
     formData.set('role', newRole);
     void submit(formData, { method: 'post' });
   };
@@ -196,6 +193,7 @@ function MemberRow({
           disabled={isSubmitting}
           hideLabel
           label={`Role for ${member.user.username}`}
+          items={ROLE_ITEMS}
         >
           {PROJECT_ROLES.map((role) => (
             <Select.Option key={role} value={role}>
@@ -308,6 +306,7 @@ export default function ProjectSettings({ loaderData }: Route.ComponentProps) {
               }}
               disabled={isSubmitting}
               hideLabel={false}
+              items={ROLE_ITEMS}
             >
               {PROJECT_ROLES.map((role) => (
                 <Select.Option key={role} value={role}>

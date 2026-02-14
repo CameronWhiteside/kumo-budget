@@ -1,6 +1,12 @@
 import { eq, and, gt, sql } from 'drizzle-orm';
 import type { Database } from '../index';
-import { sessions, type NewSession, type Session, type SessionWithUser } from '../schema';
+import {
+  sessions,
+  type NewSession,
+  type Session,
+  type SessionWithUser,
+  type User,
+} from '../schema';
 
 /**
  * Session query functions
@@ -76,10 +82,8 @@ export const sessionQueries = {
 
   /**
    * Delete all sessions for a user (logout from all devices)
-   * @param db - Database instance
-   * @param userId - User ID whose sessions to delete
    */
-  deleteAllForUser: async (db: Database, userId: number): Promise<void> => {
+  deleteAllForUser: async (db: Database, userId: User['id']): Promise<void> => {
     await db.delete(sessions).where(eq(sessions.userId, userId));
   },
 };

@@ -31,11 +31,7 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
   const { user } = await requireAuth(request, context.cloudflare.env);
   const db = createDb(context.cloudflare.env.DB);
 
-  const projectId = Number(params.id);
-  if (isNaN(projectId)) {
-    throw new Response('Invalid project ID', { status: 400 });
-  }
-
+  const projectId = params.id;
   await requireProjectAccess(db, user.id, projectId, 'editor');
 
   const project = await projectQueries.findById(db, projectId);
@@ -57,18 +53,14 @@ export async function action({ request, context, params }: Route.ActionArgs) {
   const db = createDb(context.cloudflare.env.DB);
   const bucket = context.cloudflare.env.BUCKET;
 
-  const projectId = Number(params.id);
-  if (isNaN(projectId)) {
-    throw new Response('Invalid project ID', { status: 400 });
-  }
-
+  const projectId = params.id;
   await requireProjectAccess(db, user.id, projectId, 'editor');
 
   const formData = await request.formData();
-  const accountId = Number(formData.get('accountId'));
+  const accountId = formData.get('accountId') as string;
   const file = formData.get('file') as File | null;
 
-  if (isNaN(accountId)) {
+  if (!accountId) {
     return { error: 'Please select an account' };
   }
 
@@ -84,6 +76,7 @@ export async function action({ request, context, params }: Route.ActionArgs) {
 
   // Create import batch
   const batch = await importBatchQueries.create(db, {
+    id: crypto.randomUUID(),
     projectId,
     accountId,
     filename: file.name,
@@ -191,9 +184,13 @@ export default function ImportCSV({ loaderData, actionData }: Route.ComponentPro
             disabled={isSubmitting}
             hideLabel={false}
             placeholder="Select an account"
+            items={accounts.map((account) => ({
+              value: account.id,
+              label: account.name,
+            }))}
           >
             {accounts.map((account) => (
-              <Select.Option key={account.id} value={String(account.id)}>
+              <Select.Option key={account.id} value={account.id}>
                 {account.name}
               </Select.Option>
             ))}

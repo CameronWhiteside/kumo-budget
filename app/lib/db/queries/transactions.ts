@@ -7,24 +7,16 @@ import {
   type Transaction,
   type NewTransaction,
   type Tag,
-  type TransactionTag,
+  type Project,
+  type Account,
 } from '../schema';
 
-/**
- * Transaction with tags type
- */
 export type TransactionWithTags = Transaction & {
   tags: Tag[];
 };
 
-/**
- * Transaction queries
- */
 export const transactionQueries = {
-  /**
-   * Find all transactions for a project (with tags)
-   */
-  async findByProject(db: Database, projectId: number): Promise<TransactionWithTags[]> {
+  async findByProject(db: Database, projectId: Project['id']): Promise<TransactionWithTags[]> {
     const txns = await db
       .select()
       .from(transactions)
@@ -32,35 +24,31 @@ export const transactionQueries = {
       .orderBy(desc(transactions.date))
       .all();
 
-    // Batch fetch tags for all transactions
     if (txns.length === 0) return [];
 
-    const txnIds = txns.map((t: Transaction) => t.id);
-    const tagLinks: TransactionTag[] = await db
+    const txnIds = txns.map((t) => t.id);
+    const tagLinks = await db
       .select()
       .from(transactionTags)
       .where(inArray(transactionTags.transactionId, txnIds))
       .all();
 
-    const tagIds = [...new Set(tagLinks.map((tl: TransactionTag) => tl.tagId))];
-    const allTags: Tag[] =
+    const tagIds = [...new Set(tagLinks.map((tl) => tl.tagId))];
+    const allTags =
       tagIds.length > 0 ? await db.select().from(tags).where(inArray(tags.id, tagIds)).all() : [];
 
-    const tagMap = new Map<number, Tag>(allTags.map((t: Tag) => [t.id, t]));
+    const tagMap = new Map(allTags.map((t) => [t.id, t]));
 
-    return txns.map((txn: Transaction) => ({
+    return txns.map((txn) => ({
       ...txn,
       tags: tagLinks
-        .filter((tl: TransactionTag) => tl.transactionId === txn.id)
-        .map((tl: TransactionTag) => tagMap.get(tl.tagId))
+        .filter((tl) => tl.transactionId === txn.id)
+        .map((tl) => tagMap.get(tl.tagId))
         .filter((t): t is Tag => t !== undefined),
     }));
   },
 
-  /**
-   * Find all transactions for an account (with tags)
-   */
-  async findByAccount(db: Database, accountId: number): Promise<TransactionWithTags[]> {
+  async findByAccount(db: Database, accountId: Account['id']): Promise<TransactionWithTags[]> {
     const txns = await db
       .select()
       .from(transactions)
@@ -70,52 +58,50 @@ export const transactionQueries = {
 
     if (txns.length === 0) return [];
 
-    const txnIds = txns.map((t: Transaction) => t.id);
-    const tagLinks: TransactionTag[] = await db
+    const txnIds = txns.map((t) => t.id);
+    const tagLinks = await db
       .select()
       .from(transactionTags)
       .where(inArray(transactionTags.transactionId, txnIds))
       .all();
 
-    const tagIds = [...new Set(tagLinks.map((tl: TransactionTag) => tl.tagId))];
-    const allTags: Tag[] =
+    const tagIds = [...new Set(tagLinks.map((tl) => tl.tagId))];
+    const allTags =
       tagIds.length > 0 ? await db.select().from(tags).where(inArray(tags.id, tagIds)).all() : [];
 
-    const tagMap = new Map<number, Tag>(allTags.map((t: Tag) => [t.id, t]));
+    const tagMap = new Map(allTags.map((t) => [t.id, t]));
 
-    return txns.map((txn: Transaction) => ({
+    return txns.map((txn) => ({
       ...txn,
       tags: tagLinks
-        .filter((tl: TransactionTag) => tl.transactionId === txn.id)
-        .map((tl: TransactionTag) => tagMap.get(tl.tagId))
+        .filter((tl) => tl.transactionId === txn.id)
+        .map((tl) => tagMap.get(tl.tagId))
         .filter((t): t is Tag => t !== undefined),
     }));
   },
 
-  /**
-   * Find transaction by ID (with tags)
-   */
-  async findById(db: Database, id: number): Promise<TransactionWithTags | undefined> {
+  async findById(db: Database, id: Transaction['id']): Promise<TransactionWithTags | undefined> {
     const txn = await db.select().from(transactions).where(eq(transactions.id, id)).get();
     if (!txn) return undefined;
 
-    const tagLinks: TransactionTag[] = await db
+    const tagLinks = await db
       .select()
       .from(transactionTags)
       .where(eq(transactionTags.transactionId, id))
       .all();
 
-    const tagIds = tagLinks.map((tl: TransactionTag) => tl.tagId);
-    const txnTags: Tag[] =
+    const tagIds = tagLinks.map((tl) => tl.tagId);
+    const txnTags =
       tagIds.length > 0 ? await db.select().from(tags).where(inArray(tags.id, tagIds)).all() : [];
 
     return { ...txn, tags: txnTags };
   },
 
-  /**
-   * Check if source hash exists (for duplicate detection)
-   */
-  async sourceHashExists(db: Database, projectId: number, sourceHash: string): Promise<boolean> {
+  async sourceHashExists(
+    db: Database,
+    projectId: Project['id'],
+    sourceHash: string
+  ): Promise<boolean> {
     const result = await db
       .select({ id: transactions.id })
       .from(transactions)
@@ -124,27 +110,21 @@ export const transactionQueries = {
     return result !== undefined;
   },
 
-  /**
-   * Check multiple source hashes (batch)
-   */
-  async checkSourceHashes(db: Database, projectId: number, hashes: string[]): Promise<Set<string>> {
+  async checkSourceHashes(
+    db: Database,
+    projectId: Project['id'],
+    hashes: string[]
+  ): Promise<Set<string>> {
     if (hashes.length === 0) return new Set();
     const results = await db
       .select({ sourceHash: transactions.sourceHash })
       .from(transactions)
       .where(and(eq(transactions.projectId, projectId), inArray(transactions.sourceHash, hashes)))
       .all();
-    return new Set(
-      results
-        .map((r: { sourceHash: string | null }) => r.sourceHash)
-        .filter((h): h is string => h !== null)
-    );
+    return new Set(results.map((r) => r.sourceHash).filter((h): h is string => h !== null));
   },
 
-  /**
-   * Create a new transaction
-   */
-  async create(db: Database, data: NewTransaction, tagIds?: number[]): Promise<Transaction> {
+  async create(db: Database, data: NewTransaction, tagIds?: Tag['id'][]): Promise<Transaction> {
     const txn = await db.insert(transactions).values(data).returning().get();
 
     if (tagIds && tagIds.length > 0) {
@@ -157,22 +137,18 @@ export const transactionQueries = {
     return txn;
   },
 
-  /**
-   * Create multiple transactions (bulk import)
-   */
   async createMany(
     db: Database,
     data: NewTransaction[],
-    tagIdsByIndex?: Map<number, number[]>
+    tagIdsByIndex?: Map<number, Tag['id'][]>
   ): Promise<Transaction[]> {
     if (data.length === 0) return [];
 
     const txns = await db.insert(transactions).values(data).returning().all();
 
-    // Add tags if provided
     if (tagIdsByIndex && tagIdsByIndex.size > 0) {
-      const tagInserts: { transactionId: number; tagId: number }[] = [];
-      txns.forEach((txn: Transaction, index: number) => {
+      const tagInserts: { transactionId: Transaction['id']; tagId: Tag['id'] }[] = [];
+      txns.forEach((txn, index) => {
         const tIds = tagIdsByIndex.get(index);
         if (tIds) {
           tIds.forEach((tagId) => {
@@ -188,14 +164,11 @@ export const transactionQueries = {
     return txns;
   },
 
-  /**
-   * Update transaction
-   */
   async update(
     db: Database,
-    id: number,
+    id: Transaction['id'],
     data: Partial<Pick<Transaction, 'amount' | 'date' | 'description' | 'notes'>>,
-    tagIds?: number[]
+    tagIds?: Tag['id'][]
   ): Promise<Transaction | undefined> {
     const txn = await db
       .update(transactions)
@@ -205,7 +178,6 @@ export const transactionQueries = {
       .get();
 
     if (tagIds !== undefined) {
-      // Replace all tags
       await db.delete(transactionTags).where(eq(transactionTags.transactionId, id));
       if (tagIds.length > 0) {
         await db
@@ -218,10 +190,7 @@ export const transactionQueries = {
     return txn;
   },
 
-  /**
-   * Delete transaction
-   */
-  async delete(db: Database, id: number): Promise<void> {
+  async delete(db: Database, id: Transaction['id']): Promise<void> {
     await db.delete(transactions).where(eq(transactions.id, id));
   },
 };
