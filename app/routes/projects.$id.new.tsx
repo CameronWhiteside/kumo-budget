@@ -1,5 +1,6 @@
 import { Form, Link, redirect, useActionData, useNavigation } from 'react-router';
-import { Button, Input, Label, Surface, Text } from '@cloudflare/kumo';
+import { Banner, BannerVariant, Breadcrumbs, Button, Input, Surface, Text } from '@cloudflare/kumo';
+import { FolderIcon, HouseIcon, PlusIcon } from '@phosphor-icons/react/dist/ssr';
 
 import type { Route } from './+types/projects.$id.new';
 import { AppShell } from '~/components/AppShell';
@@ -103,51 +104,47 @@ export default function NewSubProject({ loaderData }: Route.ComponentProps) {
     <AppShell user={user}>
       <div className="max-w-2xl">
         <div className="mb-6">
+          <Breadcrumbs>
+            <Breadcrumbs.Link icon={<HouseIcon size={16} />} href="/">
+              Home
+            </Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Link
+              icon={<FolderIcon size={16} />}
+              href={`/projects/${parentProject.id}`}
+            >
+              {parentProject.name}
+            </Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Current icon={<PlusIcon size={16} />}>New Sub-project</Breadcrumbs.Current>
+          </Breadcrumbs>
+        </div>
+
+        <div className="mb-6">
           <Text variant="heading2" as="h1">
             New Sub-project
           </Text>
         </div>
 
         <Surface className="p-6 rounded-xl">
-          <div className="mb-6">
-            <Text variant="secondary" size="sm">
-              Creating sub-project under
-            </Text>
-            <Text variant="heading3" as="p">
-              {parentProject.name}
-            </Text>
-          </div>
-
           <Form method="post" className="space-y-4">
             {actionData?.error && !actionData.fieldErrors?.name && (
-              <div className="p-3 rounded-lg">
-                <Text variant="error" size="sm">
-                  {actionData.error}
-                </Text>
-              </div>
+              <Banner variant={BannerVariant.ERROR}>{actionData.error}</Banner>
             )}
 
-            <div>
-              <Label htmlFor="name">Sub-project name</Label>
-              <Input
-                id="name"
-                name="name"
-                type="text"
-                placeholder="e.g., Q1 Budget, Marketing Expenses"
-                aria-describedby={actionData?.fieldErrors?.name ? 'name-error' : undefined}
-                aria-invalid={actionData?.fieldErrors?.name ? 'true' : undefined}
-                required
-                disabled={isSubmitting}
-                className="w-full"
-              />
-              {actionData?.fieldErrors?.name && (
-                <div id="name-error" className="mt-1">
-                  <Text variant="error" size="xs">
-                    {actionData.fieldErrors.name}
-                  </Text>
-                </div>
-              )}
-            </div>
+            <Input
+              label="Sub-project name"
+              name="name"
+              type="text"
+              placeholder="e.g., Q1 Budget, Marketing Expenses"
+              aria-describedby={actionData?.fieldErrors?.name ? 'name-error' : undefined}
+              aria-invalid={actionData?.fieldErrors?.name ? 'true' : undefined}
+              required
+              disabled={isSubmitting}
+            />
+            {actionData?.fieldErrors?.name && (
+              <Banner variant={BannerVariant.ERROR}>{actionData.fieldErrors.name}</Banner>
+            )}
 
             <div className="flex items-center gap-3 pt-4">
               <Button type="submit" variant="primary" disabled={isSubmitting}>

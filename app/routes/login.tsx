@@ -1,5 +1,5 @@
 import { Form, redirect, useActionData, useNavigation } from 'react-router';
-import { Button, Input, Label, Surface, Text } from '@cloudflare/kumo';
+import { Banner, BannerVariant, Button, Input, Surface, Text } from '@cloudflare/kumo';
 
 import type { Route } from './+types/login';
 import { createDb } from '~/lib/db';
@@ -96,41 +96,27 @@ export default function LoginPage() {
         </div>
 
         <Form method="post" className="space-y-4">
-          {actionData?.error && (
-            <div className="p-3 rounded-lg">
-              <Text variant="error" size="sm">
-                {actionData.error}
-              </Text>
-            </div>
-          )}
+          {actionData?.error && <Banner variant={BannerVariant.ERROR}>{actionData.error}</Banner>}
 
-          <div>
-            <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              name="username"
-              type="text"
-              placeholder="Enter your username"
-              autoComplete="username"
-              required
-              disabled={isSubmitting}
-              className="w-full"
-            />
-          </div>
+          <Input
+            label="Username"
+            name="username"
+            type="text"
+            placeholder="Enter your username"
+            autoComplete="username"
+            required
+            disabled={isSubmitting}
+          />
 
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Enter your password"
-              autoComplete="current-password"
-              required
-              disabled={isSubmitting}
-              className="w-full"
-            />
-          </div>
+          <Input
+            label="Password"
+            name="password"
+            type="password"
+            placeholder="Enter your password"
+            autoComplete="current-password"
+            required
+            disabled={isSubmitting}
+          />
 
           <div className="pt-2">
             <Button type="submit" variant="primary" className="w-full" disabled={isSubmitting}>

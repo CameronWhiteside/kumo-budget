@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Form, Link, redirect, useActionData, useNavigation, useSearchParams } from 'react-router';
-import { Button, Input, Label, Surface, Text } from '@cloudflare/kumo';
+import { Banner, BannerVariant, Button, Input, Select, Surface, Text } from '@cloudflare/kumo';
 
 import type { Route } from './+types/projects.new';
 import { AppShell } from '~/components/AppShell';
@@ -102,7 +103,8 @@ export default function NewProject({ loaderData }: Route.ComponentProps) {
 
   // Get default parent from URL or action data
   const parentParam = searchParams.get('parent');
-  const defaultParentId = parentId ?? (parentParam ? parseInt(parentParam, 10) : '');
+  const defaultParentId = String(parentId ?? (parentParam ? parseInt(parentParam, 10) : ''));
+  const [selectedParent, setSelectedParent] = useState<string>(defaultParentId);
 
   return (
     <AppShell user={user}>
@@ -115,64 +117,46 @@ export default function NewProject({ loaderData }: Route.ComponentProps) {
 
         <Surface className="p-8 rounded-xl">
           <Form method="post" className="space-y-4">
+            <input type="hidden" name="parentId" value={selectedParent} />
+
             {/* General error message */}
             {actionData?.error && !actionData.fieldErrors?.name && (
-              <div className="p-3 rounded-lg border">
-                <Text variant="error" size="sm">
-                  {actionData.error}
-                </Text>
-              </div>
+              <Banner variant={BannerVariant.ERROR}>{actionData.error}</Banner>
             )}
 
             {/* Project name input */}
-            <div>
-              <Label htmlFor="name">Project name</Label>
-              <Input
-                id="name"
-                name="name"
-                type="text"
-                placeholder="e.g., Home Budget, Vacation Fund"
-                aria-describedby={actionData?.fieldErrors?.name ? 'name-error' : undefined}
-                aria-invalid={actionData?.fieldErrors?.name ? 'true' : undefined}
-                required
-                disabled={isSubmitting}
-                className="w-full"
-              />
-              {actionData?.fieldErrors?.name && (
-                <div className="mt-1">
-                  <Text variant="error" size="xs" id="name-error">
-                    {actionData.fieldErrors.name}
-                  </Text>
-                </div>
-              )}
-            </div>
+            <Input
+              label="Project name"
+              name="name"
+              type="text"
+              placeholder="e.g., Home Budget, Vacation Fund"
+              aria-describedby={actionData?.fieldErrors?.name ? 'name-error' : undefined}
+              aria-invalid={actionData?.fieldErrors?.name ? 'true' : undefined}
+              required
+              disabled={isSubmitting}
+            />
+            {actionData?.fieldErrors?.name && (
+              <Banner variant={BannerVariant.ERROR}>{actionData.fieldErrors.name}</Banner>
+            )}
 
             {/* Parent project dropdown (optional) */}
             {projects.length > 0 && (
-              <div>
-                <Label htmlFor="parentId" showOptional>
-                  Parent project
-                </Label>
-                <select
-                  id="parentId"
-                  name="parentId"
-                  disabled={isSubmitting}
-                  defaultValue={defaultParentId}
-                  className="w-full px-3 py-2 rounded-lg border disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <option value="">None (top-level project)</option>
-                  {projects.map((project: Project) => (
-                    <option key={project.id} value={project.id}>
-                      {project.name}
-                    </option>
-                  ))}
-                </select>
-                <div className="mt-1">
-                  <Text variant="secondary" size="xs">
-                    Create this project as a sub-project of an existing project.
-                  </Text>
-                </div>
-              </div>
+              <Select
+                label="Parent project (optional)"
+                value={selectedParent}
+                onValueChange={(v) => {
+                  setSelectedParent(v ?? '');
+                }}
+                disabled={isSubmitting}
+                hideLabel={false}
+                placeholder="None (top-level project)"
+              >
+                {projects.map((project: Project) => (
+                  <Select.Option key={project.id} value={String(project.id)}>
+                    {project.name}
+                  </Select.Option>
+                ))}
+              </Select>
             )}
 
             {/* Form actions */}

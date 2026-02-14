@@ -1,7 +1,16 @@
 import { useState } from 'react';
 import { Form, Link, redirect, useNavigation, useSearchParams } from 'react-router';
-import { Button, Input, Select, Text } from '@cloudflare/kumo';
-import { ArrowLeftIcon, UploadIcon } from '@phosphor-icons/react/dist/ssr';
+import {
+  Banner,
+  BannerVariant,
+  Breadcrumbs,
+  Button,
+  Empty,
+  Input,
+  Select,
+  Text,
+} from '@cloudflare/kumo';
+import { BankIcon, HouseIcon, UploadIcon } from '@phosphor-icons/react/dist/ssr';
 
 import { AppShell } from '~/components/AppShell';
 import type { Route } from './+types/projects.$id.import';
@@ -114,10 +123,17 @@ export default function ImportCSV({ loaderData, actionData }: Route.ComponentPro
     return (
       <AppShell user={user}>
         <div className="max-w-md mx-auto">
-          <Link to={`/projects/${project.id}`} className="inline-flex items-center gap-2 mb-6">
-            <ArrowLeftIcon className="h-4 w-4" />
-            <Text size="sm">Back to project</Text>
-          </Link>
+          <div className="mb-6">
+            <Breadcrumbs>
+              <Breadcrumbs.Link icon={<HouseIcon size={16} />} href="/">
+                Home
+              </Breadcrumbs.Link>
+              <Breadcrumbs.Separator />
+              <Breadcrumbs.Link href={`/projects/${project.id}`}>{project.name}</Breadcrumbs.Link>
+              <Breadcrumbs.Separator />
+              <Breadcrumbs.Current icon={<UploadIcon size={16} />}>Import CSV</Breadcrumbs.Current>
+            </Breadcrumbs>
+          </div>
 
           <div className="mb-6">
             <Text variant="heading1" as="h1">
@@ -125,16 +141,16 @@ export default function ImportCSV({ loaderData, actionData }: Route.ComponentPro
             </Text>
           </div>
 
-          <div className="py-8 text-center">
-            <Text variant="secondary">
-              You need to create an account first before importing transactions.
-            </Text>
-            <div className="mt-4">
+          <Empty
+            icon={<BankIcon size={48} />}
+            title="No accounts yet"
+            description="You need to create an account before importing transactions."
+            contents={
               <Link to={`/projects/${project.id}/accounts/new`}>
                 <Button variant="primary">Create Account</Button>
               </Link>
-            </div>
-          </div>
+            }
+          />
         </div>
       </AppShell>
     );
@@ -143,25 +159,25 @@ export default function ImportCSV({ loaderData, actionData }: Route.ComponentPro
   return (
     <AppShell user={user}>
       <div className="max-w-md mx-auto">
-        <Link to={`/projects/${project.id}`} className="inline-flex items-center gap-2 mb-6">
-          <ArrowLeftIcon className="h-4 w-4" />
-          <Text size="sm">Back to project</Text>
-        </Link>
+        <div className="mb-6">
+          <Breadcrumbs>
+            <Breadcrumbs.Link icon={<HouseIcon size={16} />} href="/">
+              Home
+            </Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Link href={`/projects/${project.id}`}>{project.name}</Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Current icon={<UploadIcon size={16} />}>Import CSV</Breadcrumbs.Current>
+          </Breadcrumbs>
+        </div>
 
         <div className="mb-6">
           <Text variant="heading1" as="h1">
             Import CSV
           </Text>
-          <div className="mt-1">
-            <Text variant="secondary">{project.name}</Text>
-          </div>
         </div>
 
-        {actionData?.error && (
-          <div className="mb-4">
-            <Text variant="error">{actionData.error}</Text>
-          </div>
-        )}
+        {actionData?.error && <Banner variant={BannerVariant.ERROR}>{actionData.error}</Banner>}
 
         <Form method="post" encType="multipart/form-data" className="space-y-4">
           <input type="hidden" name="accountId" value={selectedAccount} />
@@ -195,8 +211,12 @@ export default function ImportCSV({ loaderData, actionData }: Route.ComponentPro
           </div>
 
           <div className="pt-4">
-            <Button type="submit" variant="primary" disabled={isSubmitting || !selectedAccount}>
-              <UploadIcon className="h-4 w-4 mr-2" />
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={isSubmitting || !selectedAccount}
+              icon={<UploadIcon />}
+            >
               Upload & Continue
             </Button>
           </div>

@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { Form, Link, redirect, useNavigation, useSubmit } from 'react-router';
-import { Button, Input, Text, Table } from '@cloudflare/kumo';
-import { ArrowLeftIcon, TrashIcon, UploadIcon } from '@phosphor-icons/react/dist/ssr';
+import { Badge, Breadcrumbs, Button, Empty, Input, Table, Text } from '@cloudflare/kumo';
+import {
+  BankIcon,
+  HouseIcon,
+  ReceiptIcon,
+  TrashIcon,
+  UploadIcon,
+} from '@phosphor-icons/react/dist/ssr';
 
 import { AppShell } from '~/components/AppShell';
 import type { Route } from './+types/projects.$id.accounts.$accountId';
@@ -136,13 +142,24 @@ export default function AccountDetail({ loaderData }: Route.ComponentProps) {
   return (
     <AppShell user={user}>
       <div className="max-w-4xl mx-auto">
-        <Link
-          to={`/projects/${project.id}/accounts`}
-          className="inline-flex items-center gap-2 mb-6"
-        >
-          <ArrowLeftIcon className="h-4 w-4" />
-          <Text size="sm">Back to accounts</Text>
-        </Link>
+        <div className="mb-6">
+          <Breadcrumbs>
+            <Breadcrumbs.Link icon={<HouseIcon size={16} />} href="/">
+              Home
+            </Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Link href={`/projects/${project.id}`}>{project.name}</Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Link
+              icon={<BankIcon size={16} />}
+              href={`/projects/${project.id}/accounts`}
+            >
+              Accounts
+            </Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Current>{account.name}</Breadcrumbs.Current>
+          </Breadcrumbs>
+        </div>
 
         <div className="flex items-start justify-between mb-8">
           <div>
@@ -150,16 +167,15 @@ export default function AccountDetail({ loaderData }: Route.ComponentProps) {
               {account.name}
             </Text>
             <div className="mt-1">
-              <Text variant="secondary">
+              <Badge variant="secondary">
                 {ACCOUNT_TYPE_OPTIONS.find((o) => o.value === account.type)?.label ?? account.type}
-              </Text>
+              </Badge>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             <Link to={`/projects/${project.id}/import?account=${account.id}`}>
-              <Button variant="secondary">
-                <UploadIcon className="h-4 w-4 mr-2" />
+              <Button variant="secondary" icon={<UploadIcon />}>
                 Import CSV
               </Button>
             </Link>
@@ -233,9 +249,18 @@ export default function AccountDetail({ loaderData }: Route.ComponentProps) {
         </div>
 
         {transactions.length === 0 ? (
-          <div className="py-8 text-center">
-            <Text variant="secondary">No transactions yet. Import a CSV to get started.</Text>
-          </div>
+          <Empty
+            icon={<ReceiptIcon size={48} />}
+            title="No transactions yet"
+            description="Import a CSV to get started with this account."
+            contents={
+              <Link to={`/projects/${project.id}/import?account=${account.id}`}>
+                <Button variant="primary" icon={<UploadIcon />}>
+                  Import CSV
+                </Button>
+              </Link>
+            }
+          />
         ) : (
           <Table>
             <Table.Header>

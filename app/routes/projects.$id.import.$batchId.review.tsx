@@ -1,7 +1,21 @@
 import { useState } from 'react';
-import { Form, Link, redirect, useNavigation, useFetcher } from 'react-router';
-import { Button, Text, Table, Checkbox } from '@cloudflare/kumo';
-import { ArrowLeftIcon, CheckIcon, SparkleIcon, WarningIcon } from '@phosphor-icons/react/dist/ssr';
+import { Form, redirect, useNavigation, useFetcher } from 'react-router';
+import {
+  Banner,
+  BannerVariant,
+  Breadcrumbs,
+  Button,
+  Checkbox,
+  Table,
+  Text,
+} from '@cloudflare/kumo';
+import {
+  CheckIcon,
+  HouseIcon,
+  SparkleIcon,
+  UploadIcon,
+  WarningIcon,
+} from '@phosphor-icons/react/dist/ssr';
 
 import { AppShell } from '~/components/AppShell';
 import type { Route } from './+types/projects.$id.import.$batchId.review';
@@ -262,13 +276,24 @@ export default function ReviewImport({ loaderData, actionData }: Route.Component
   return (
     <AppShell user={user}>
       <div className="max-w-6xl mx-auto">
-        <Link
-          to={`/projects/${project.id}/import/${batch.id}/map`}
-          className="inline-flex items-center gap-2 mb-6"
-        >
-          <ArrowLeftIcon className="h-4 w-4" />
-          <Text size="sm">Back to mapping</Text>
-        </Link>
+        <div className="mb-6">
+          <Breadcrumbs>
+            <Breadcrumbs.Link icon={<HouseIcon size={16} />} href="/">
+              Home
+            </Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Link href={`/projects/${project.id}`}>{project.name}</Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Link
+              icon={<UploadIcon size={16} />}
+              href={`/projects/${project.id}/import`}
+            >
+              Import
+            </Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Current>Review</Breadcrumbs.Current>
+          </Breadcrumbs>
+        </div>
 
         <div className="flex items-start justify-between mb-6">
           <div>
@@ -288,8 +313,8 @@ export default function ReviewImport({ loaderData, actionData }: Route.Component
                 variant="secondary"
                 onClick={handleSuggestTags}
                 disabled={aiLoading || isSubmitting}
+                icon={<SparkleIcon />}
               >
-                <SparkleIcon className="h-4 w-4 mr-2" />
                 {aiLoading ? 'Suggesting...' : 'Suggest Tags'}
               </Button>
             )}
@@ -300,27 +325,20 @@ export default function ReviewImport({ loaderData, actionData }: Route.Component
                 type="submit"
                 variant="primary"
                 disabled={isSubmitting || includedRows.length === 0}
+                icon={<CheckIcon />}
               >
-                <CheckIcon className="h-4 w-4 mr-2" />
                 Import {includedRows.length} Transactions
               </Button>
             </Form>
           </div>
         </div>
 
-        {actionData?.error && (
-          <div className="mb-4">
-            <Text variant="error">{actionData.error}</Text>
-          </div>
-        )}
+        {actionData?.error && <Banner variant={BannerVariant.ERROR}>{actionData.error}</Banner>}
 
         {duplicateCount > 0 && (
-          <div className="mb-4 flex items-center gap-2">
-            <WarningIcon className="h-4 w-4" />
-            <Text variant="secondary" size="sm">
-              {duplicateCount} potential duplicate(s) detected (already imported)
-            </Text>
-          </div>
+          <Banner variant={BannerVariant.ALERT} icon={<WarningIcon />}>
+            {duplicateCount} potential duplicate(s) detected (already imported)
+          </Banner>
         )}
 
         <div className="mb-2">

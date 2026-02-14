@@ -1,12 +1,11 @@
 import { Link } from 'react-router';
-import { Button, Surface, Text } from '@cloudflare/kumo';
+import { Badge, Breadcrumbs, Button, Empty, Grid, GridItem, Surface, Text } from '@cloudflare/kumo';
 import {
   GearIcon,
   PlusIcon,
   UsersIcon,
   FolderIcon,
   HouseIcon,
-  CaretRightIcon,
   UserIcon,
   BankIcon,
   TagIcon,
@@ -72,27 +71,23 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
 }
 
 /**
- * Breadcrumb navigation component
+ * Breadcrumb navigation component using Kumo Breadcrumbs
  */
-function Breadcrumbs({ ancestors, current }: { ancestors: Project[]; current: Project }) {
+function ProjectBreadcrumbs({ ancestors, current }: { ancestors: Project[]; current: Project }) {
   return (
-    <nav className="flex items-center gap-2 text-sm" aria-label="Breadcrumb">
-      <Link to="/">
-        <HouseIcon className="h-4 w-4" />
-      </Link>
-
+    <Breadcrumbs>
+      <Breadcrumbs.Link icon={<HouseIcon size={16} />} href="/">
+        Home
+      </Breadcrumbs.Link>
       {ancestors.map((ancestor) => (
-        <div key={ancestor.id} className="flex items-center gap-2">
-          <CaretRightIcon className="h-3 w-3" />
-          <Link to={`/projects/${ancestor.id}`}>{ancestor.name}</Link>
-        </div>
+        <span key={ancestor.id}>
+          <Breadcrumbs.Separator />
+          <Breadcrumbs.Link href={`/projects/${ancestor.id}`}>{ancestor.name}</Breadcrumbs.Link>
+        </span>
       ))}
-
-      <CaretRightIcon className="h-3 w-3" />
-      <Text variant="secondary" size="sm" bold>
-        {current.name}
-      </Text>
-    </nav>
+      <Breadcrumbs.Separator />
+      <Breadcrumbs.Current>{current.name}</Breadcrumbs.Current>
+    </Breadcrumbs>
   );
 }
 
@@ -134,7 +129,7 @@ export default function ProjectDetail({ loaderData }: Route.ComponentProps) {
     <AppShell user={user}>
       {/* Breadcrumbs */}
       <div className="mb-6">
-        <Breadcrumbs ancestors={ancestors} current={project} />
+        <ProjectBreadcrumbs ancestors={ancestors} current={project} />
       </div>
 
       {/* Project header */}
@@ -191,28 +186,28 @@ export default function ProjectDetail({ loaderData }: Route.ComponentProps) {
         </div>
 
         {children.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Grid variant="3up" gap="base">
             {children.map((child) => (
-              <SubProjectCard key={child.id} project={child} />
+              <GridItem key={child.id}>
+                <SubProjectCard project={child} />
+              </GridItem>
             ))}
-          </div>
+          </Grid>
         ) : (
-          <div className="text-center py-12">
-            <FolderIcon className="h-12 w-12 mx-auto mb-4" />
-            <div className="mb-4">
-              <Text variant="secondary" as="p">
-                No sub-projects yet
-              </Text>
-            </div>
-            {userCanEdit && (
-              <Link to={`/projects/${project.id}/new`}>
-                <Button variant="primary">
-                  <PlusIcon className="h-4 w-4 mr-2" />
-                  Create Sub-project
-                </Button>
-              </Link>
-            )}
-          </div>
+          <Empty
+            icon={<FolderIcon size={48} />}
+            title="No sub-projects yet"
+            description="Create a sub-project to organize your budget."
+            contents={
+              userCanEdit ? (
+                <Link to={`/projects/${project.id}/new`}>
+                  <Button variant="primary" icon={<PlusIcon />}>
+                    Create Sub-project
+                  </Button>
+                </Link>
+              ) : undefined
+            }
+          />
         )}
       </Surface>
 
@@ -224,57 +219,63 @@ export default function ProjectDetail({ loaderData }: Route.ComponentProps) {
           </Text>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link to={`/projects/${project.id}/accounts`}>
-            <Surface className="p-6 rounded-lg transition-colors">
-              <div className="flex items-center gap-3">
-                <BankIcon className="h-6 w-6" />
-                <div>
-                  <Text variant="heading3" as="h3">
-                    Accounts
-                  </Text>
-                  <Text variant="secondary" size="sm">
-                    View and manage financial accounts
-                  </Text>
-                </div>
-              </div>
-            </Surface>
-          </Link>
-
-          <Link to={`/projects/${project.id}/tags`}>
-            <Surface className="p-6 rounded-lg transition-colors">
-              <div className="flex items-center gap-3">
-                <TagIcon className="h-6 w-6" />
-                <div>
-                  <Text variant="heading3" as="h3">
-                    Tags
-                  </Text>
-                  <Text variant="secondary" size="sm">
-                    Categorize transactions with tags
-                  </Text>
-                </div>
-              </div>
-            </Surface>
-          </Link>
-
-          {userCanEdit && (
-            <Link to={`/projects/${project.id}/import`}>
-              <Surface className="p-6 rounded-lg transition-colors">
+        <Grid variant="3up" gap="base">
+          <GridItem>
+            <Link to={`/projects/${project.id}/accounts`}>
+              <Surface className="p-6 rounded-lg transition-colors h-full">
                 <div className="flex items-center gap-3">
-                  <UploadIcon className="h-6 w-6" />
+                  <BankIcon className="h-6 w-6" />
                   <div>
                     <Text variant="heading3" as="h3">
-                      Import CSV
+                      Accounts
                     </Text>
                     <Text variant="secondary" size="sm">
-                      Import transactions from bank exports
+                      View and manage financial accounts
                     </Text>
                   </div>
                 </div>
               </Surface>
             </Link>
+          </GridItem>
+
+          <GridItem>
+            <Link to={`/projects/${project.id}/tags`}>
+              <Surface className="p-6 rounded-lg transition-colors h-full">
+                <div className="flex items-center gap-3">
+                  <TagIcon className="h-6 w-6" />
+                  <div>
+                    <Text variant="heading3" as="h3">
+                      Tags
+                    </Text>
+                    <Text variant="secondary" size="sm">
+                      Categorize transactions with tags
+                    </Text>
+                  </div>
+                </div>
+              </Surface>
+            </Link>
+          </GridItem>
+
+          {userCanEdit && (
+            <GridItem>
+              <Link to={`/projects/${project.id}/import`}>
+                <Surface className="p-6 rounded-lg transition-colors h-full">
+                  <div className="flex items-center gap-3">
+                    <UploadIcon className="h-6 w-6" />
+                    <div>
+                      <Text variant="heading3" as="h3">
+                        Import CSV
+                      </Text>
+                      <Text variant="secondary" size="sm">
+                        Import transactions from bank exports
+                      </Text>
+                    </div>
+                  </div>
+                </Surface>
+              </Link>
+            </GridItem>
           )}
-        </div>
+        </Grid>
       </Surface>
 
       {/* Members quick view */}
@@ -294,12 +295,10 @@ export default function ProjectDetail({ loaderData }: Route.ComponentProps) {
 
         <div className="flex flex-wrap gap-3">
           {project.members.map((member) => (
-            <div key={member.userId} className="flex items-center gap-2 px-3 py-2 rounded-full">
+            <div key={member.userId} className="flex items-center gap-2">
               <UserIcon className="h-4 w-4" />
               <Text size="sm">{member.user.username}</Text>
-              <Text variant="secondary" size="sm">
-                ({member.role})
-              </Text>
+              <Badge variant="secondary">{member.role}</Badge>
             </div>
           ))}
         </div>

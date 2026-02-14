@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
-import { Button, Text, Table } from '@cloudflare/kumo';
-import { PlusIcon, ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr';
+import { Breadcrumbs, Button, Empty, Link as KumoLink, Table, Text } from '@cloudflare/kumo';
+import { BankIcon, HouseIcon, PlusIcon } from '@phosphor-icons/react/dist/ssr';
 
 import { AppShell } from '~/components/AppShell';
 import type { Route } from './+types/projects.$id.accounts';
@@ -68,33 +68,43 @@ export default function ProjectAccounts({ loaderData }: Route.ComponentProps) {
   return (
     <AppShell user={user}>
       <div className="max-w-4xl mx-auto">
-        <Link to={`/projects/${project.id}`} className="inline-flex items-center gap-2 mb-6">
-          <ArrowLeftIcon className="h-4 w-4" />
-          <Text size="sm">Back to project</Text>
-        </Link>
+        <div className="mb-6">
+          <Breadcrumbs>
+            <Breadcrumbs.Link icon={<HouseIcon size={16} />} href="/">
+              Home
+            </Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Link href={`/projects/${project.id}`}>{project.name}</Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Current icon={<BankIcon size={16} />}>Accounts</Breadcrumbs.Current>
+          </Breadcrumbs>
+        </div>
 
         <div className="flex items-center justify-between mb-6">
-          <div>
-            <Text variant="heading1" as="h1">
-              Accounts
-            </Text>
-            <div className="mt-1">
-              <Text variant="secondary">{project.name}</Text>
-            </div>
-          </div>
+          <Text variant="heading1" as="h1">
+            Accounts
+          </Text>
 
           <Link to={`/projects/${project.id}/accounts/new`}>
-            <Button variant="primary">
-              <PlusIcon className="h-4 w-4 mr-2" />
+            <Button variant="primary" icon={<PlusIcon />}>
               New Account
             </Button>
           </Link>
         </div>
 
         {accounts.length === 0 ? (
-          <div className="py-12 text-center">
-            <Text variant="secondary">No accounts yet. Create one to start tracking.</Text>
-          </div>
+          <Empty
+            icon={<BankIcon size={48} />}
+            title="No accounts yet"
+            description="Create an account to start tracking your finances."
+            contents={
+              <Link to={`/projects/${project.id}/accounts/new`}>
+                <Button variant="primary" icon={<PlusIcon />}>
+                  Create Account
+                </Button>
+              </Link>
+            }
+          />
         ) : (
           <Table>
             <Table.Header>
@@ -108,9 +118,11 @@ export default function ProjectAccounts({ loaderData }: Route.ComponentProps) {
               {accounts.map((account) => (
                 <Table.Row key={account.id}>
                   <Table.Cell>
-                    <Link to={`/projects/${project.id}/accounts/${account.id}`}>
-                      <Text bold>{account.name}</Text>
-                    </Link>
+                    <KumoLink
+                      render={<Link to={`/projects/${project.id}/accounts/${account.id}`} />}
+                    >
+                      {account.name}
+                    </KumoLink>
                   </Table.Cell>
                   <Table.Cell>
                     <Text variant="secondary">{formatAccountType(account.type)}</Text>

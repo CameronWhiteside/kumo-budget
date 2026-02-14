@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Form, Link, redirect, useActionData, useNavigation, useSubmit } from 'react-router';
-import { Button, Input, Select, Text } from '@cloudflare/kumo';
-import { ArrowLeftIcon, TrashIcon, PlusIcon } from '@phosphor-icons/react/dist/ssr';
+import { Form, redirect, useActionData, useNavigation, useSubmit } from 'react-router';
+import { Banner, BannerVariant, Breadcrumbs, Button, Input, Select, Text } from '@cloudflare/kumo';
+import { GearIcon, HouseIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react/dist/ssr';
 
 import { AppShell } from '~/components/AppShell';
 
@@ -236,26 +236,28 @@ export default function ProjectSettings({ loaderData }: Route.ComponentProps) {
   return (
     <AppShell user={user}>
       <div className="max-w-2xl mx-auto">
-        <Link to={`/projects/${project.id}`} className="inline-flex items-center gap-2 mb-6">
-          <ArrowLeftIcon className="h-4 w-4" />
-          <Text size="sm">Back to project</Text>
-        </Link>
+        <div className="mb-6">
+          <Breadcrumbs>
+            <Breadcrumbs.Link icon={<HouseIcon size={16} />} href="/">
+              Home
+            </Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Link href={`/projects/${project.id}`}>{project.name}</Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Current icon={<GearIcon size={16} />}>Settings</Breadcrumbs.Current>
+          </Breadcrumbs>
+        </div>
 
-        <div className="mb-1">
+        <div className="mb-8">
           <Text variant="heading1" as="h1">
             Settings
           </Text>
         </div>
-        <div className="mb-8">
-          <Text variant="secondary">{project.name}</Text>
-        </div>
 
         {actionData && (
-          <div className="mb-6">
-            <Text variant={actionData.success ? 'secondary' : 'error'} size="sm">
-              {actionData.success ? actionData.message : actionData.error}
-            </Text>
-          </div>
+          <Banner variant={actionData.success ? BannerVariant.DEFAULT : BannerVariant.ERROR}>
+            {actionData.success ? actionData.message : actionData.error}
+          </Banner>
         )}
 
         {/* Members */}

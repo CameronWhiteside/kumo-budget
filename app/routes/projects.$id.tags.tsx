@@ -1,6 +1,6 @@
-import { Form, Link, useNavigation } from 'react-router';
-import { Button, Input, Text, Table } from '@cloudflare/kumo';
-import { PlusIcon, ArrowLeftIcon, TrashIcon } from '@phosphor-icons/react/dist/ssr';
+import { Form, useNavigation } from 'react-router';
+import { Breadcrumbs, Button, Empty, Input, Table, Text } from '@cloudflare/kumo';
+import { HouseIcon, PlusIcon, TagIcon, TrashIcon } from '@phosphor-icons/react/dist/ssr';
 
 import { AppShell } from '~/components/AppShell';
 import type { Route } from './+types/projects.$id.tags';
@@ -101,18 +101,22 @@ export default function ProjectTags({ loaderData, actionData }: Route.ComponentP
   return (
     <AppShell user={user}>
       <div className="max-w-2xl mx-auto">
-        <Link to={`/projects/${project.id}`} className="inline-flex items-center gap-2 mb-6">
-          <ArrowLeftIcon className="h-4 w-4" />
-          <Text size="sm">Back to project</Text>
-        </Link>
+        <div className="mb-6">
+          <Breadcrumbs>
+            <Breadcrumbs.Link icon={<HouseIcon size={16} />} href="/">
+              Home
+            </Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Link href={`/projects/${project.id}`}>{project.name}</Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Current icon={<TagIcon size={16} />}>Tags</Breadcrumbs.Current>
+          </Breadcrumbs>
+        </div>
 
         <div className="mb-6">
           <Text variant="heading1" as="h1">
             Tags
           </Text>
-          <div className="mt-1">
-            <Text variant="secondary">{project.name}</Text>
-          </div>
         </div>
 
         {actionData?.error && (
@@ -142,9 +146,11 @@ export default function ProjectTags({ loaderData, actionData }: Route.ComponentP
 
         {/* Tags list */}
         {tags.length === 0 ? (
-          <div className="py-8 text-center">
-            <Text variant="secondary">No tags yet. Create one above.</Text>
-          </div>
+          <Empty
+            icon={<TagIcon size={48} />}
+            title="No tags yet"
+            description="Create a tag above to categorize your transactions."
+          />
         ) : (
           <Table>
             <Table.Header>

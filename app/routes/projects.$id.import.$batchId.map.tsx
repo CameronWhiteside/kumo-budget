@@ -1,7 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Form, Link, redirect, useNavigation } from 'react-router';
-import { Button, Select, Text, Table } from '@cloudflare/kumo';
-import { ArrowLeftIcon, ArrowRightIcon } from '@phosphor-icons/react/dist/ssr';
+import { Form, redirect, useNavigation } from 'react-router';
+import {
+  Banner,
+  BannerVariant,
+  Breadcrumbs,
+  Button,
+  Grid,
+  GridItem,
+  Select,
+  Table,
+  Text,
+} from '@cloudflare/kumo';
+import { ArrowRightIcon, HouseIcon, UploadIcon } from '@phosphor-icons/react/dist/ssr';
 
 import { AppShell } from '~/components/AppShell';
 import type { Route } from './+types/projects.$id.import.$batchId.map';
@@ -244,10 +254,24 @@ export default function MapColumns({ loaderData, actionData }: Route.ComponentPr
   return (
     <AppShell user={user}>
       <div className="max-w-4xl mx-auto">
-        <Link to={`/projects/${project.id}/import`} className="inline-flex items-center gap-2 mb-6">
-          <ArrowLeftIcon className="h-4 w-4" />
-          <Text size="sm">Back</Text>
-        </Link>
+        <div className="mb-6">
+          <Breadcrumbs>
+            <Breadcrumbs.Link icon={<HouseIcon size={16} />} href="/">
+              Home
+            </Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Link href={`/projects/${project.id}`}>{project.name}</Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Link
+              icon={<UploadIcon size={16} />}
+              href={`/projects/${project.id}/import`}
+            >
+              Import
+            </Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Current>Map Columns</Breadcrumbs.Current>
+          </Breadcrumbs>
+        </div>
 
         <div className="mb-6">
           <Text variant="heading1" as="h1">
@@ -260,19 +284,15 @@ export default function MapColumns({ loaderData, actionData }: Route.ComponentPr
           </div>
         </div>
 
-        {actionData?.error && (
-          <div className="mb-4">
-            <Text variant="error">{actionData.error}</Text>
-          </div>
-        )}
+        {actionData?.error && <Banner variant={BannerVariant.ERROR}>{actionData.error}</Banner>}
 
         <Form method="post" className="space-y-6">
           <input type="hidden" name="dateColumn" value={dateColumn} />
           <input type="hidden" name="amountColumn" value={amountColumn} />
           <input type="hidden" name="descriptionColumn" value={descriptionColumn} />
 
-          <div className="flex gap-4">
-            <div className="flex-1">
+          <Grid variant="3up" gap="base">
+            <GridItem>
               <Select
                 label="Date Column"
                 value={dateColumn}
@@ -289,9 +309,9 @@ export default function MapColumns({ loaderData, actionData }: Route.ComponentPr
                   </Select.Option>
                 ))}
               </Select>
-            </div>
+            </GridItem>
 
-            <div className="flex-1">
+            <GridItem>
               <Select
                 label="Amount Column"
                 value={amountColumn}
@@ -308,9 +328,9 @@ export default function MapColumns({ loaderData, actionData }: Route.ComponentPr
                   </Select.Option>
                 ))}
               </Select>
-            </div>
+            </GridItem>
 
-            <div className="flex-1">
+            <GridItem>
               <Select
                 label="Description Column"
                 value={descriptionColumn}
@@ -327,8 +347,8 @@ export default function MapColumns({ loaderData, actionData }: Route.ComponentPr
                   </Select.Option>
                 ))}
               </Select>
-            </div>
-          </div>
+            </GridItem>
+          </Grid>
 
           {/* Preview table */}
           <div>
@@ -378,9 +398,9 @@ export default function MapColumns({ loaderData, actionData }: Route.ComponentPr
               type="submit"
               variant="primary"
               disabled={isSubmitting || !dateColumn || !amountColumn || !descriptionColumn}
+              icon={<ArrowRightIcon />}
             >
               Continue to Review
-              <ArrowRightIcon className="h-4 w-4 ml-2" />
             </Button>
           </div>
         </Form>

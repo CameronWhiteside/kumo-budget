@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { Button, Surface, Text } from '@cloudflare/kumo';
+import { Badge, Button, Empty, Grid, GridItem, Surface, Text } from '@cloudflare/kumo';
 import { FolderIcon, FolderPlusIcon, TreeStructureIcon } from '@phosphor-icons/react/dist/ssr';
 
 import { AppShell } from '~/components/AppShell';
@@ -56,10 +56,11 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 }
 
 /**
- * Role badge component
+ * Role badge component using Kumo Badge
  */
 function RoleBadge({ role }: { role: ProjectRole }) {
-  return <span className="px-2 py-0.5 rounded-full text-xs font-medium">{role}</span>;
+  const variant = role === 'owner' ? 'primary' : role === 'editor' ? 'secondary' : 'outline';
+  return <Badge variant={variant}>{role}</Badge>;
 }
 
 /**
@@ -89,62 +90,59 @@ export default function ProjectsIndex({ loaderData }: Route.ComponentProps) {
 
       {projects.length === 0 ? (
         /* Empty state */
-        <Surface className="p-12 rounded-xl text-center">
-          <FolderIcon className="h-16 w-16 mx-auto mb-4" />
-          <div className="mb-2">
-            <Text variant="heading3" as="h2">
-              No projects yet
-            </Text>
-          </div>
-          <div className="mb-6">
-            <Text variant="secondary" as="p">
-              Create your first project to start tracking your budget.
-            </Text>
-          </div>
-          <Link to="/projects/new">
-            <Button variant="primary">
-              <FolderPlusIcon className="h-4 w-4 mr-2" />
-              Create your first project
-            </Button>
-          </Link>
+        <Surface className="p-12 rounded-xl">
+          <Empty
+            icon={<FolderIcon size={48} />}
+            title="No projects yet"
+            description="Create your first project to start tracking your budget."
+            contents={
+              <Link to="/projects/new">
+                <Button variant="primary" icon={<FolderPlusIcon />}>
+                  Create your first project
+                </Button>
+              </Link>
+            }
+          />
         </Surface>
       ) : (
         /* Projects grid */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Grid variant="3up" gap="base">
           {projects.map(({ project, role, childCount }) => (
-            <Link key={project.id} to={`/projects/${project.id}`} className="block">
-              <Surface className="p-6 rounded-xl hover:shadow-md transition-shadow h-full">
-                <div className="flex items-start justify-between mb-3">
-                  <FolderIcon className="h-8 w-8" />
-                  <RoleBadge role={role} />
-                </div>
+            <GridItem key={project.id}>
+              <Link to={`/projects/${project.id}`} className="block h-full">
+                <Surface className="p-6 rounded-xl hover:shadow-md transition-shadow h-full">
+                  <div className="flex items-start justify-between mb-3">
+                    <FolderIcon className="h-8 w-8" />
+                    <RoleBadge role={role} />
+                  </div>
 
-                <div className="mb-2">
-                  <Text variant="heading3" as="h3">
-                    {project.name}
-                  </Text>
-                </div>
+                  <div className="mb-2">
+                    <Text variant="heading3" as="h3">
+                      {project.name}
+                    </Text>
+                  </div>
 
-                <div className="flex items-center gap-4 mt-4">
-                  {childCount > 0 && (
-                    <div className="flex items-center gap-1">
-                      <TreeStructureIcon className="h-4 w-4" />
-                      <Text variant="secondary" size="sm">
-                        {childCount} sub-project{childCount !== 1 ? 's' : ''}
-                      </Text>
-                    </div>
-                  )}
-                </div>
+                  <div className="flex items-center gap-4 mt-4">
+                    {childCount > 0 && (
+                      <div className="flex items-center gap-1">
+                        <TreeStructureIcon className="h-4 w-4" />
+                        <Text variant="secondary" size="sm">
+                          {childCount} sub-project{childCount !== 1 ? 's' : ''}
+                        </Text>
+                      </div>
+                    )}
+                  </div>
 
-                <div className="mt-4 pt-4 border-t">
-                  <Text variant="secondary" size="xs">
-                    Created {new Date(project.createdAt).toLocaleDateString()}
-                  </Text>
-                </div>
-              </Surface>
-            </Link>
+                  <div className="mt-4 pt-4 border-t">
+                    <Text variant="secondary" size="xs">
+                      Created {new Date(project.createdAt).toLocaleDateString()}
+                    </Text>
+                  </div>
+                </Surface>
+              </Link>
+            </GridItem>
           ))}
-        </div>
+        </Grid>
       )}
     </AppShell>
   );

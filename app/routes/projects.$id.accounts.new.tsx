@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Form, Link, redirect, useNavigation } from 'react-router';
-import { Button, Input, Select, Text } from '@cloudflare/kumo';
-import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr';
+import { Form, redirect, useNavigation } from 'react-router';
+import { Banner, BannerVariant, Breadcrumbs, Button, Input, Select, Text } from '@cloudflare/kumo';
+import { BankIcon, HouseIcon, PlusIcon } from '@phosphor-icons/react/dist/ssr';
 
 import { AppShell } from '~/components/AppShell';
 import type { Route } from './+types/projects.$id.accounts.new';
@@ -101,28 +101,32 @@ export default function NewAccount({ loaderData, actionData }: Route.ComponentPr
   return (
     <AppShell user={user}>
       <div className="max-w-md mx-auto">
-        <Link
-          to={`/projects/${project.id}/accounts`}
-          className="inline-flex items-center gap-2 mb-6"
-        >
-          <ArrowLeftIcon className="h-4 w-4" />
-          <Text size="sm">Back to accounts</Text>
-        </Link>
+        <div className="mb-6">
+          <Breadcrumbs>
+            <Breadcrumbs.Link icon={<HouseIcon size={16} />} href="/">
+              Home
+            </Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Link href={`/projects/${project.id}`}>{project.name}</Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Link
+              icon={<BankIcon size={16} />}
+              href={`/projects/${project.id}/accounts`}
+            >
+              Accounts
+            </Breadcrumbs.Link>
+            <Breadcrumbs.Separator />
+            <Breadcrumbs.Current icon={<PlusIcon size={16} />}>New Account</Breadcrumbs.Current>
+          </Breadcrumbs>
+        </div>
 
         <div className="mb-6">
           <Text variant="heading1" as="h1">
             New Account
           </Text>
-          <div className="mt-1">
-            <Text variant="secondary">{project.name}</Text>
-          </div>
         </div>
 
-        {actionData?.error && (
-          <div className="mb-4">
-            <Text variant="error">{actionData.error}</Text>
-          </div>
-        )}
+        {actionData?.error && <Banner variant={BannerVariant.ERROR}>{actionData.error}</Banner>}
 
         <Form method="post" className="space-y-4">
           <input type="hidden" name="type" value={accountType} />
