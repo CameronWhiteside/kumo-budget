@@ -15,6 +15,13 @@
       "when": 1771017327470,
       "tag": "0001_kind_ender_wiggin",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1771021647289,
+      "tag": "0002_curvy_naoko",
+      "breakpoints": true
     }
   ]
 }

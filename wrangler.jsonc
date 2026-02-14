@@ -33,5 +33,10 @@
 			"binding": "BUCKET",
 			"bucket_name": "kumo-budget-files"
 		}
-	]
+	],
+
+	// Workers AI binding
+	"ai": {
+		"binding": "AI"
+	}
 }
